@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>나의 프로필 수정</title>
+
+  <style>
+    body {
+      background-color: #ffeaf4;
+      text-align: center;
+      padding-top: 80px;
+    }
+    h1 {
+      color: #ff3399;
+      font-size: 32px;
+      margin-bottom: 40px;
+    }
+    .button-container, .button-row {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    .button-row {
+      flex-direction: row;
+      justify-content: center;
+    }
+    .tag-button {
+      background: linear-gradient(to bottom, #ffb3dd, #ff66aa);
+      color: white;
+      border: 3px solid white;
+      border-radius: 40px;
+      padding: 12px 40px;
+      font-size: 20px;
+      box-shadow: 0 5px 15px rgba(255, 105, 180, 0.4);
+      cursor: pointer;
+      width: 220px;
+      text-align: center;
+    }
+    .tag-button:hover {
+      transform: scale(1.05);
+    }
+    .tag-button.selected {
+      background: linear-gradient(to bottom, #fff0fb, #ff99cc);
+      color: #ff3399;
+      box-shadow: 0 0 20px rgba(255, 105, 180, 0.8);
+      border: 3px solid #ff66aa;
+    }
+    .cute-button {
+      background: linear-gradient(to bottom, #ff80b5, #ff4d94);
+      color: white;
+      font-size: 18px;
+      padding: 10px 24px;
+      margin: 20px;
+      border: 3px solid white;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+  </style>
+
+</head>
+<body>
+
+<h1>나의 프로필 수정</h1>
+
+<div class="button-container">
+
+  <!-- MBTI -->
+  <div class="button-row" data-type="mbti">
+    <button type="button" class="tag-button">내향</button>
+    <button type="button" class="tag-button">외향</button>
+  </div>
+
+  <!-- Smoke -->
+  <div class="button-row" data-type="smoke">
+    <button type="button" class="tag-button">흡연자</button>
+    <button type="button" class="tag-button">비흡연자</button>
+  </div>
+
+  <!-- Body -->
+  <div class="button-row" data-type="body">
+    <button type="button" class="tag-button">마름</button>
+    <button type="button" class="tag-button">보통</button>
+    <button type="button" class="tag-button">통통</button>
+  </div>
+
+  <!-- Style -->
+  <div class="button-row" data-type="style">
+    <button type="button" class="tag-button">트랜디한</button>
+    <button type="button" class="tag-button">다정한</button>
+    <button type="button" class="tag-button">유쾌한</button>
+  </div>
+
+</div>
+
+<button class="cute-button" onclick="submitProfile()">수정 완료</button>
+<button class="cute-button" onclick="location.href='memberInfo.html'">취소</button>
+
+<script>
+
+  //----------------------------------------------------------
+  // 1) 세션 로그인 체크
+  //----------------------------------------------------------
+  async function checkSession() {
+    const res = await fetch("/api/auth/check-session", {
+      method: "GET",
+      credentials: "include"
+    });
+
+    const data = await res.json();
+
+    if (!data.id) {
+      alert("로그인이 필요합니다.");
+      location.href = "../auth/login.html";
+    }
+  }
+
+  checkSession();
+
+
+  //----------------------------------------------------------
+  // 2) 선택값 저장 객체
+  //----------------------------------------------------------
+  const profileData = {
+    mbti: "",
+    smoke: "",
+    body: "",
+    style: ""
+  };
+
+  //----------------------------------------------------------
+  // 3) 버튼 클릭 이벤트
+  //----------------------------------------------------------
+  document.querySelectorAll(".button-row").forEach(row => {
+    row.querySelectorAll(".tag-button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const type = row.dataset.type;
+        row.querySelectorAll(".tag-button").forEach(b => b.classList.remove("selected"));
+        btn.classList.add("selected");
+        profileData[type] = btn.innerText;
+      });
+    });
+  });
+
+  //----------------------------------------------------------
+  // 4) 기존 프로필 불러오기 (세션 기반)
+  //----------------------------------------------------------
+  async function loadProfile() {
+    const res = await fetch("/api/member/profile", {
+      method: "GET",
+      credentials: "include"
+    });
+
+    const data = await res.json();
+
+    profileData.mbti = data.mbti;
+    profileData.smoke = data.smoke;
+    profileData.body = data.body;
+    profileData.style = data.style;
+
+    applySelectedButtons();
+  }
+
+  function applySelectedButtons() {
+    document.querySelectorAll(".button-row").forEach(row => {
+      const type = row.dataset.type;
+      const value = profileData[type];
+
+      row.querySelectorAll(".tag-button").forEach(btn => {
+        if (btn.innerText === value) btn.classList.add("selected");
+      });
+    });
+  }
+
+  loadProfile();
+
+
+  //----------------------------------------------------------
+  // 5) 수정 제출 (세션 기반)
+  //----------------------------------------------------------
+  async function submitProfile() {
+
+    if (!profileData.mbti || !profileData.smoke || !profileData.body || !profileData.style) {
+      alert("모든 항목을 선택해주세요.");
+      return;
+    }
+
+    const res = await fetch("/api/member/editprofile", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(profileData)   // ✔ id 제거!
+    });
+
+    const msg = await res.text();
+    alert(msg);
+    location.href = "memberInfo.html";
+  }
+
+</script>
+
+</body>
+</html>

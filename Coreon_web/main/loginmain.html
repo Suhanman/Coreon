@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>CoreON - Home</title>
+  <style>
+    /* ====== Base ====== */
+    :root {
+      --bg: #f5f7fb;
+      --surface: #ffffff;
+      --text: #1f2937;       /* gray-800 */
+      --muted: #6b7280;      /* gray-500 */
+      --line: #e5e7eb;       /* gray-200 */
+      --primary: #1f4bd8;    /* calm blue */
+      --primary-hover: #193db0;
+      --shadow: 0 8px 24px rgba(17, 24, 39, 0.08);
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      background-color: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: var(--text);
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* ====== Header ====== */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .main_div_header {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 20px 14px;
+      text-align: center;
+    }
+
+    .main_div_header h1 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: -0.2px;
+    }
+
+    .main_div_header h3 {
+      margin: 8px 0 0;
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    /* ====== Top Nav (center bar) ====== */
+    .top-nav {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 26px;
+      margin-top: 18px;
+      padding: 10px 0 6px;
+      flex-wrap: wrap;
+    }
+
+    .nav-item {
+      font-size: 14px;
+      color: var(--text);
+      padding: 8px 6px;
+      border-bottom: 2px solid transparent;
+      font-weight: 600;
+    }
+
+    .nav-item:hover {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    /* 로그인/회원가입은 버튼 느낌으로 살짝 강조 */
+    .nav-item.action {
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      font-weight: 700;
+    }
+
+    .nav-item.action:hover {
+      border-color: rgba(31, 75, 216, 0.35);
+      box-shadow: 0 4px 12px rgba(31, 75, 216, 0.10);
+      border-bottom-color: transparent; /* 버튼형은 밑줄 제거 */
+    }
+
+    .nav-item.action.primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .nav-item.action.primary:hover {
+      background: var(--primary-hover);
+      border-color: var(--primary-hover);
+      box-shadow: 0 6px 16px rgba(31, 75, 216, 0.18);
+    }
+
+    /* ====== Main ====== */
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 36px 20px 0;
+      text-align: center;
+    }
+
+    .main_div {
+      display: inline-block;
+      width: min(640px, 100%);
+      background-color: var(--surface);
+      border-radius: var(--radius);
+      padding: 34px 34px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+      margin-top: 28px;
+      text-align: left; 
+    }
+
+
+    .cute-title {
+      font-size: 20px;
+      margin: 0 0 8px;
+      color: var(--text);
+      font-weight: 800;
+      letter-spacing: -0.2px;
+    }
+
+    .cute-subtitle {
+      font-size: 14px;
+      margin: 0 0 18px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* 인트라넷 홈에 흔한 "빠른 링크" 섹션 */
+    .quick-links {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .quick-link {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: #fff;
+      transition: box-shadow .15s ease, transform .15s ease, border-color .15s ease;
+    }
+
+    .quick-link:hover {
+      border-color: rgba(31, 75, 216, 0.25);
+      box-shadow: 0 6px 18px rgba(17, 24, 39, 0.08);
+      transform: translateY(-1px);
+    }
+
+    .quick-link .title {
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    .quick-link .desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .logo-link {
+        text-decoration: none;
+        color: inherit;      
+    }
+    .logo-link:hover {
+        color: inherit;      
+    }
+
+    /* ====== Message ====== */
+    #message {
+      text-align: center;
+      margin-top: 18px;
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    /* ====== Footer ====== */
+    footer {
+      margin-top: 80px;
+      text-align: center;
+      padding: 20px 0;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+      background: var(--surface);
+    }
+
+    /* ====== Responsive ====== */
+    @media (max-width: 520px) {
+      .quick-links { grid-template-columns: 1fr; }
+      .top-nav { gap: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="app-header"></div>
+  <script src="/assets/app-header.js" defer></script>
+
+    <main>
+    <div class="main_div">
+      <div class="cute-title">CoreON 인트라넷</div>
+      <div class="cute-subtitle">
+        공지 확인, 게시판, 문서 공유 등 사내 업무를 한 곳에서 처리합니다.
+      </div>
+
+      <!-- ✅ 메인에서 회원가입/로그인 버튼 제거하고, 대신 빠른 링크 제공 -->
+      <div class="quick-links">
+        <a class="quick-link" href="/board/list.html">
+          <div class="title">게시판</div>
+          <div class="desc">팀별 공유, 질문, 업무 히스토리 확인</div>
+        </a>
+        <a class="quick-link" href="/board/notice.html">
+          <div class="title">공지사항</div>
+          <div class="desc">중요 공지 및 업데이트 확인</div>
+        </a>
+        <a class="quick-link" href="/faq/faq.html">
+          <div class="title">FAQ</div>
+          <div class="desc">자주 묻는 질문 / 채팅 문의</div>
+        </a>
+        <a class="quick-link" href="auth/login.html">
+          <div class="title">로그인</div>
+          <div class="desc">계정으로 접속하여 기능 이용</div>
+        </a>
+      </div>
+    </div>
+
+    <div id="message"></div>
+  </main>
+
+  <footer>
+    Copyright CoreON
+  </footer>
+
+
+
+
+<script>
+  fetch("/main/header.html")
+    .then(res => {
+      if (!res.ok) throw new Error("Failed to load header");
+      return res.text();
+    })
+    .then(html => {
+      document.getElementById("app-header").innerHTML = html;
+    })
+    .catch(err => console.error(err));
+</script>
+
+
+</body>
+</html>

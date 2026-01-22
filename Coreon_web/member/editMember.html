@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>CoreON - 회원정보 수정</title>
+  <style>
+    /* ====== Base (regist.html과 통일) ====== */
+    :root {
+      --bg: #f5f7fb;
+      --surface: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --primary: #1f4bd8;
+      --primary-hover: #193db0;
+      --shadow: 0 8px 24px rgba(17, 24, 39, 0.08);
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; }
+
+    body {
+      background-color: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: var(--text);
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    /* ====== Header ====== */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+    }
+    .main_div_header {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 20px 14px;
+      text-align: center;
+    }
+    .main_div_header h1 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: -0.2px;
+    }
+    .main_div_header h3 {
+      margin: 8px 0 0;
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .top-nav {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 26px;
+      margin-top: 18px;
+      padding: 10px 0 6px;
+      flex-wrap: wrap;
+    }
+    .nav-item {
+      font-size: 14px;
+      color: var(--text);
+      padding: 8px 6px;
+      border-bottom: 2px solid transparent;
+      font-weight: 600;
+    }
+    .nav-item:hover {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .nav-item.action {
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      font-weight: 700;
+    }
+    .nav-item.action:hover {
+      border-color: rgba(31, 75, 216, 0.35);
+      box-shadow: 0 4px 12px rgba(31, 75, 216, 0.10);
+      border-bottom-color: transparent;
+    }
+    .nav-item.action.primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+    .nav-item.action.primary:hover {
+      background: var(--primary-hover);
+      border-color: var(--primary-hover);
+      box-shadow: 0 6px 16px rgba(31, 75, 216, 0.18);
+    }
+
+    .logo-link { text-decoration: none; color: inherit; }
+    .logo-link:hover { color: inherit; }
+
+    /* ====== Main ====== */
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 36px 20px 0;
+      text-align: center;
+    }
+
+    .card {
+      display: inline-block;
+      width: min(720px, 100%);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 28px 28px;
+      margin-top: 28px;
+      text-align: left;
+    }
+
+    .title {
+      margin: 0 0 6px;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.2px;
+    }
+    .subtitle {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* ====== Form layout ====== */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .field { margin-bottom: 2px; }
+    .field.full { grid-column: 1 / -1; }
+
+    .label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    input[type="text"], input[type="password"], select {
+      width: 100%;
+      padding: 12px 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      outline: none;
+      font-size: 14px;
+      background: #fff;
+      color: var(--text);
+    }
+    input[type="text"]:focus,
+    input[type="password"]:focus,
+    select:focus {
+      border-color: rgba(31, 75, 216, 0.45);
+      box-shadow: 0 0 0 4px rgba(31, 75, 216, 0.10);
+    }
+
+    /* 읽기 전용 느낌 */
+    input[disabled], input[readonly] {
+      background: #f9fafb;
+      color: #6b7280;
+      cursor: not-allowed;
+    }
+
+    .help {
+      font-size: 12px;
+      margin-top: 6px;
+      min-height: 16px;
+      font-weight: 700;
+    }
+    .help.ok { color: #166534; }
+    .help.bad { color: #b91c1c; }
+
+    .btn {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .btn:hover {
+      border-color: rgba(17, 24, 39, 0.15);
+      box-shadow: 0 6px 16px rgba(17, 24, 39, 0.06);
+    }
+    .btn.primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+    .btn.primary:hover {
+      background: var(--primary-hover);
+      border-color: var(--primary-hover);
+      box-shadow: 0 6px 16px rgba(31, 75, 216, 0.18);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+
+    #msg {
+      display: block;
+      margin-top: 12px;
+      font-size: 13px;
+      font-weight: 800;
+      color: #b91c1c;
+      min-height: 18px;
+    }
+
+    .section-line {
+      grid-column: 1 / -1;
+      margin: 8px 0 2px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--line);
+    }
+    .section-title {
+      margin: 0 0 6px;
+      font-size: 14px;
+      font-weight: 900;
+      color: var(--text);
+    }
+    .section-desc {
+      margin: 0 0 10px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    footer {
+      margin-top: 80px;
+      text-align: center;
+      padding: 20px 0;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+      background: var(--surface);
+    }
+
+    @media (max-width: 720px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ===== HEADER ===== -->
+
+<div id="app-header"></div>
+<script src="/assets/app-header.js" defer></script>
+  <!-- ===== MAIN ===== -->
+  <main>
+    <div class="card">
+      <h2 class="title">회원정보 수정</h2>
+      <p class="subtitle">변경 가능한 정보만 수정하세요. (아이디/이름/이메일은 변경 불가)</p>
+
+      <span id="msg"></span>
+
+      <form id="f" onsubmit="return false;">
+        <div class="grid">
+          <!-- 불변 필드: 미리 불러와서 잠금 -->
+          <div class="field">
+            <label class="label" for="id">아이디 (변경 불가)</label>
+            <input type="text" id="id" name="id" disabled />
+          </div>
+
+          <div class="field">
+            <label class="label" for="username">이름 (변경 불가)</label>
+            <input type="text" id="username" name="username" disabled />
+          </div>
+
+          <div class="field full">
+            <label class="label" for="email">이메일 (변경 불가)</label>
+            <input type="text" id="email" name="email" disabled />
+          </div>
+
+          <!-- 가변 필드 -->
+          <div class="field">
+            <label class="label" for="mobile">전화번호</label>
+            <input type="text" id="mobile" name="mobile" placeholder="전화번호" required />
+          </div>
+
+          <div class="field">
+            <label class="label" for="dept">소속 부서</label>
+            <input type="text" id="dept" name="dept" placeholder="소속 부서" required />
+          </div>
+
+          <div class="field">
+            <label class="label" for="position">직급</label>
+            <input type="text" id="position" name="position" placeholder="직급" required />
+          </div>
+
+          <!-- 비밀번호 변경(선택) -->
+          <div class="section-line">
+            <div class="section-title">비밀번호 변경(선택)</div>
+            <div class="section-desc">
+              비밀번호를 바꾸지 않을 경우 아래 항목을 비워두세요.
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label" for="newPw">새 비밀번호</label>
+            <input type="password" id="newPw" name="newPw" placeholder="새 비밀번호" oninput="pwCheck()" />
+          </div>
+
+          <div class="field">
+            <label class="label" for="newConfirm">새 비밀번호 확인</label>
+            <input type="password" id="newConfirm" name="newConfirm" placeholder="새 비밀번호 확인" oninput="pwCheck()" />
+            <div id="pwLabel" class="help"></div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn" onclick="goBack()">취소</button>
+          <button type="button" class="btn primary" onclick="submitUpdate()">저장</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <footer>Copyright CoreON</footer>
+<!-- 
+  <script>
+    const API_BASE = "http://localhost:8081";
+
+    // 너 프로젝트에 이미 존재하는 것으로 보이는 세션 확인 엔드포인트
+
+    // 아래 2개는 백엔드 실제 구현에 맞게 하나만 쓰면 됨
+    // 1) 회원정보 조회 (id로 상세 조회)
+    const API_GET_MEMBER_BY_ID = (id) => `${API_BASE}/api/auth/member?id=${encodeURIComponent(id)}`;
+    // 2) 회원정보 수정
+    const API_UPDATE_MEMBER = `${API_BASE}/api/auth/member`; // 예: PUT/PATCH /api/auth/member
+
+    let currentUserId = null;
+
+    // ------------------------------
+    // 페이지 로드시: 세션 확인 -> 정보 로드
+    // ------------------------------
+    window.addEventListener("DOMContentLoaded", init);
+
+    async function init() {
+      try {
+        const sessionRes = await fetch(API_CHECK_SESSION, { method: "GET", credentials: "include" });
+        const sessionData = await sessionRes.json().catch(() => ({}));
+
+        if (!sessionRes.ok || !sessionData.id) {
+          alert("로그인이 필요합니다.");
+          location.href = "/auth/login.html";
+          return;
+        }
+
+        currentUserId = (sessionData.id || "").trim();
+        // 세션 응답에 username/position 등이 포함되어 있다면 우선 채움
+        fillIfPresent(sessionData);
+
+        // 상세 정보가 더 필요하면 별도 조회
+        await loadMemberDetail(currentUserId);
+
+      } catch (e) {
+        console.error(e);
+        alert("세션 확인 중 오류가 발생했습니다.");
+        location.href = "/auth/login.html";
+      }
+    }
+
+    function fillIfPresent(data) {
+      if (data.id) document.getElementById("id").value = data.id;
+      if (data.username) document.getElementById("username").value = data.username;
+      if (data.email) document.getElementById("email").value = data.email;
+      if (data.mobile) document.getElementById("mobile").value = data.mobile;
+      if (data.dept) document.getElementById("dept").value = data.dept;
+      if (data.position) document.getElementById("position").value = data.position;
+    }
+
+    async function loadMemberDetail(id) {
+      // 백엔드에 "상세조회 API"가 없다면 이 함수는 제거하고
+      // check-session 응답만으로 채우면 됨.
+      try {
+        const res = await fetch(API_GET_MEMBER_BY_ID(id), { method: "GET", credentials: "include" });
+        if (!res.ok) return; // 없을 수도 있으니 조용히 통과
+        const detail = await res.json().catch(() => ({}));
+        fillIfPresent(detail);
+      } catch (e) {
+        console.warn("상세 조회 API 호출 실패(무시 가능):", e);
+      }
+    }
+
+    // ------------------------------
+    // 비밀번호 변경 검증(선택)
+    // ------------------------------
+    function pwCheck() {
+      const pw = document.getElementById("newPw").value;
+      const confirm = document.getElementById("newConfirm").value;
+      const label = document.getElementById("pwLabel");
+
+      if (!pw && !confirm) {
+        label.innerText = "";
+        label.className = "help";
+        return;
+      }
+
+      if (pw.length < 5) {
+        label.innerText = "비밀번호는 5자리 이상 입력하세요.";
+        label.className = "help bad";
+      } else if (pw !== confirm) {
+        label.innerText = "비밀번호가 일치하지 않습니다.";
+        label.className = "help bad";
+      } else {
+        label.innerText = "비밀번호가 일치합니다.";
+        label.className = "help ok";
+      }
+    }
+
+    // ------------------------------
+    // 저장(수정 API 호출)
+    // ------------------------------
+    async function submitUpdate() {
+      const msgEl = document.getElementById("msg");
+      msgEl.textContent = "";
+
+      if (!currentUserId) {
+        alert("세션 정보가 없습니다. 다시 로그인 해주세요.");
+        location.href = "/auth/login.html";
+        return;
+      }
+
+      const mobile = (document.getElementById("mobile").value || "").trim();
+      const dept = (document.getElementById("dept").value || "").trim();
+      const position = (document.getElementById("position").value || "").trim();
+
+      if (!mobile || !dept || !position) {
+        alert("모든 항목을 입력해주세요.");
+        return;
+      }
+
+      const newPw = document.getElementById("newPw").value || "";
+      const newConfirm = document.getElementById("newConfirm").value || "";
+
+      // 비밀번호는 입력한 경우에만 검증/전송
+      if (newPw || newConfirm) {
+        if (newPw.length < 5) {
+          alert("비밀번호는 5자리 이상 입력하세요.");
+          return;
+        }
+        if (newPw !== newConfirm) {
+          alert("비밀번호가 일치하지 않습니다.");
+          return;
+        }
+      }
+
+      // 서버로 보낼 payload: "수정 허용 필드만" 포함
+      const payload = {
+        id: currentUserId,     // 식별 키
+        mobile,
+        dept,
+        position
+      };
+      if (newPw) payload.pw = newPw; // 백엔드가 pw 필드를 받는 구조라면
+
+      try {
+        const res = await fetch(API_UPDATE_MEMBER, {
+          method: "PUT", // 백엔드가 PATCH면 "PATCH"로 바꿔
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          alert(err.message || "회원정보 수정 실패");
+          return;
+        }
+
+        alert("회원정보가 수정되었습니다.");
+        location.href = "/index.html";
+      } catch (e) {
+        console.error(e);
+        alert("네트워크 오류로 수정에 실패했습니다.");
+      }
+    }
+
+    function goBack() {
+      history.back();
+    }
+  </script> -->
+</body>
+</html>

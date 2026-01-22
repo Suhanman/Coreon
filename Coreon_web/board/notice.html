@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>CoreON - 공지사항</title>
+  <style>
+    /* ====== CoreON Base ====== */
+    :root{
+      --bg:#f5f7fb;
+      --surface:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --primary:#1f4bd8;
+      --primary-hover:#193db0;
+      --shadow:0 8px 24px rgba(17,24,39,.08);
+      --radius:14px;
+    }
+    *{box-sizing:border-box;}
+    body{
+      margin:0; padding:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",Arial,sans-serif;
+    }
+    a{color:inherit;text-decoration:none;}
+
+    /* ===== Header ===== */
+    header{background:var(--surface); border-bottom:1px solid var(--line);}
+    .main_div_header{
+      max-width:1100px; margin:0 auto;
+      padding:24px 20px 14px;
+      text-align:center;
+    }
+    .main_div_header h1{margin:0; font-size:28px; letter-spacing:-.2px;}
+    .main_div_header h3{margin:8px 0 0; font-size:14px; color:var(--muted); font-weight:500;}
+
+    .top-nav{
+      display:flex; justify-content:center; align-items:center;
+      gap:26px; margin-top:18px; padding:10px 0 6px;
+      flex-wrap:wrap;
+    }
+    .nav-item{
+      font-size:14px; font-weight:600;
+      padding:8px 6px; border-bottom:2px solid transparent;
+      color:var(--text);
+    }
+    .nav-item:hover{color:var(--primary); border-bottom-color:var(--primary);}
+    .nav-item.active{color:var(--primary); border-bottom-color:var(--primary);}
+    .nav-item.action{
+      padding:8px 12px; border:1px solid var(--line); border-radius:10px;
+      background:#fff; font-weight:700;
+    }
+    .nav-item.action.primary{background:var(--primary); border-color:var(--primary); color:#fff;}
+    .nav-item.action.primary:hover{background:var(--primary-hover); border-color:var(--primary-hover);}
+
+
+    .logo-link {
+        text-decoration: none;
+        color: inherit;      
+    }
+    .logo-link:hover {
+        color: inherit;      
+    }
+    /* ===== Main ===== */
+    main{max-width:1100px; margin:0 auto; padding:28px 20px 0;}
+    .page-head{
+      display:flex; justify-content:space-between; align-items:flex-end;
+      gap:12px; flex-wrap:wrap;
+      margin: 6px 0 16px;
+    }
+    .page-title{
+      display:flex; flex-direction:column; gap:6px;
+    }
+    .page-title h2{margin:0; font-size:18px; font-weight:800;}
+    .page-title p{margin:0; font-size:13px; color:var(--muted); line-height:1.6;}
+
+    .tools{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    }
+    .search{
+      width: 260px;
+      padding: 11px 12px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      outline:none;
+      background:#fff;
+      font-size:14px;
+    }
+    .search:focus{
+      border-color: rgba(31,75,216,0.45);
+      box-shadow: 0 0 0 4px rgba(31,75,216,0.10);
+    }
+    .btn{
+      border:1px solid var(--line);
+      background:#fff;
+      padding:11px 14px;
+      border-radius:12px;
+      font-weight:800;
+      cursor:pointer;
+      font-size:14px;
+      white-space:nowrap;
+    }
+    .btn.primary{
+      background:var(--primary);
+      border-color:var(--primary);
+      color:#fff;
+    }
+    .btn.primary:hover{
+      background:var(--primary-hover);
+      border-color:var(--primary-hover);
+      box-shadow:0 6px 16px rgba(31,75,216,0.18);
+    }
+
+    /* ===== Layout ===== */
+    .layout{
+      display:grid;
+      grid-template-columns: 1.6fr 0.9fr;
+      gap:16px;
+      align-items:start;
+    }
+
+    .card{
+      background:var(--surface);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .card-head{
+      padding:14px 16px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+    }
+    .card-head .title{
+      font-size:14px;
+      font-weight:800;
+      margin:0;
+    }
+    .card-head .desc{
+      font-size:12px;
+      color:var(--muted);
+      margin:2px 0 0;
+    }
+    .card-body{padding:12px 12px;}
+
+    /* ===== Notice list ===== */
+    .notice-list{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      padding:12px;
+    }
+    .notice-item{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:12px 14px;
+      background:#fff;
+      cursor:pointer;
+      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    }
+    .notice-item:hover{
+      border-color: rgba(31,75,216,0.25);
+      box-shadow: 0 6px 18px rgba(17,24,39,0.08);
+      transform: translateY(-1px);
+    }
+    .row{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+      flex-wrap:wrap;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      font-size:12px;
+      font-weight:800;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--text);
+      white-space:nowrap;
+    }
+    .badge.important{
+      border-color: rgba(31,75,216,0.35);
+      background: rgba(31,75,216,0.08);
+      color: var(--primary);
+    }
+    .badge.update{
+      border-color: rgba(17,24,39,0.12);
+      background: rgba(17,24,39,0.04);
+      color: var(--text);
+    }
+    .notice-title{
+      margin:0;
+      font-size:14px;
+      font-weight:900;
+      letter-spacing:-.1px;
+    }
+    .notice-meta{
+      margin-top:6px;
+      font-size:12px;
+      color:var(--muted);
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .notice-preview{
+      margin-top:8px;
+      font-size:13px;
+      color:var(--text);
+      line-height:1.55;
+      opacity:0.92;
+    }
+
+    
+
+    /* ===== Right panel ===== */
+    .panel{
+      padding:12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .panel-box{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:12px;
+      background:#fff;
+    }
+    .panel-box h4{
+      margin:0 0 8px;
+      font-size:13px;
+      font-weight:900;
+    }
+    .panel-box p, .panel-box li{
+      margin:0;
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.6;
+    }
+    .panel-box ul{
+      margin:8px 0 0;
+      padding-left:18px;
+    }
+
+    /* ===== Modal (공지 상세 보기) ===== */
+    .modal-backdrop{
+      position:fixed; inset:0;
+      background: rgba(17,24,39,0.42);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      z-index:999;
+    }
+    .modal{
+      width:min(720px, 100%);
+      background: var(--surface);
+      border:1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 18px 50px rgba(17,24,39,0.20);
+      overflow:hidden;
+    }
+    .modal-head{
+      padding:14px 16px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:10px;
+    }
+    .modal-head .m-title{
+      margin:0;
+      font-size:15px;
+      font-weight:900;
+      line-height:1.4;
+    }
+    .modal-head .m-meta{
+      margin-top:6px;
+      font-size:12px;
+      color:var(--muted);
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .modal-body{
+      padding:16px;
+      font-size:14px;
+      line-height:1.7;
+      white-space:pre-wrap;
+    }
+    .icon-btn{
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:12px;
+      padding:8px 10px;
+      cursor:pointer;
+      font-weight:900;
+    }
+    .icon-btn:hover{
+      border-color: rgba(17,24,39,0.15);
+      box-shadow:0 6px 16px rgba(17,24,39,0.06);
+    }
+
+    /* ===== Footer ===== */
+    footer{
+      margin-top:80px;
+      text-align:center;
+      padding:20px 0;
+      border-top:1px solid var(--line);
+      color:var(--muted);
+      font-size:13px;
+      background:var(--surface);
+    }
+
+    @media (max-width: 960px){
+      .layout{grid-template-columns: 1fr;}
+      .search{width: 100%;}
+    }
+  </style>
+</head>
+
+<body>
+<header>
+<div id="app-header"></div>
+<script src="/assets/app-header.js" defer></script>
+</header>
+
+<main>
+  <div class="page-head">
+    <div class="page-title">
+      <h2>공지사항</h2>
+      <p>중요 공지 및 시스템 업데이트를 확인합니다. </p>
+    </div>
+
+    <div class="tools">
+      <input id="search" class="search" type="text" placeholder="공지 검색 (제목/내용)" />
+      <!-- 나중에 관리자만 보이게 처리 가능 -->
+       <!--공지 작성은 관리자만 할 수 있게 구현 하는게 좋을거같음 -->
+      <button class="btn primary" type="button" onclick="alert('작성 기능은 추후 연결 예정입니다.')">공지 작성</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- ===== Left: Notice List ===== -->
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <p class="title">공지 목록</p>
+          <p class="desc">최신 공지부터 표시됩니다.</p>
+        </div>
+        <button class="btn" type="button" onclick="resetSearch()">초기화</button>
+      </div>
+
+      <div class="notice-list" id="noticeList">
+        <!-- 샘플 데이터 (나중에 API로 대체) -->
+        <article class="notice-item" onclick="openNotice(0)">
+          <div class="row">
+            <p class="notice-title">[점검] 1/12(금) 02:00~03:00 시스템 점검 안내</p>
+            <span class="badge important">중요</span>
+          </div>
+          <div class="notice-meta">
+            <span>2026-01-10</span>
+            <span>IT 운영팀</span>
+          </div>
+          <div class="notice-preview">점검 시간 동안 일부 서비스 이용이 제한될 수 있습니다. 자세한 내용은 공지 본문을 확인해주세요.</div>
+        </article>
+
+        <article class="notice-item" onclick="openNotice(1)">
+          <div class="row">
+            <p class="notice-title">[업데이트] 공지/FAQ 메뉴 개편 안내</p>
+            <span class="badge update">업데이트</span>
+          </div>
+          <div class="notice-meta">
+            <span>2026-01-09</span>
+            <span>서비스 기획</span>
+          </div>
+          <div class="notice-preview">CoreON 인트라넷의 공지/FAQ 화면이 더 깔끔하게 개선되었습니다.</div>
+        </article>
+
+        <article class="notice-item" onclick="openNotice(2)">
+          <div class="row">
+            <p class="notice-title">[안내] 신규 계정 발급 및 권한 요청 절차</p>
+            <span class="badge">안내</span>
+          </div>
+          <div class="notice-meta">
+            <span>2026-01-05</span>
+            <span>인사/총무</span>
+          </div>
+          <div class="notice-preview">신규 입사자 계정 발급과 권한 요청 절차를 정리했습니다. 필요한 경우 게시판 Q&A를 활용해주세요.</div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===== Right: Info Panel ===== -->
+    <aside class="card">
+      <div class="card-head">
+        <div>
+          <p class="title">안내</p>
+          <p class="desc">공지 운영 기준 및 바로가기</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-box">
+          <h4>공지 작성 기준</h4>
+          <ul>
+            <li>전사 공지/시스템 점검/정책 변경 등 “중요 사항”만 공지로 등록</li>
+            <li>팀별 공유/업무 진행 상황/히스토리는 게시판 이용</li>
+            <li>제목에 분류 태그 권장: [점검], [업데이트], [안내]</li>
+          </ul>
+        </div>
+
+        <div class="panel-box">
+          <h4>바로가기</h4>
+          <ul>
+            <li><a href="/board/list.html">게시판으로 이동</a></li>
+            <li><a href="/faq/faq.html">FAQ 챗봇</a></li>
+          </ul>
+        </div>
+
+        <div class="panel-box">
+          <h4>문의</h4>
+          <p>접속/권한/오류 관련 문의는 IT 운영팀으로 전달해주세요.</p>
+        </div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<!-- ===== Modal ===== -->
+<div class="modal-backdrop" id="modalBackdrop" onclick="closeModal(event)">
+  <div class="modal" role="dialog" aria-modal="true" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <div>
+        <h3 class="m-title" id="mTitle">공지 제목</h3>
+        <div class="m-meta" id="mMeta"></div>
+      </div>
+      <button class="icon-btn" type="button" onclick="closeModal()">닫기</button>
+    </div>
+    <div class="modal-body" id="mBody"></div>
+  </div>
+</div>
+
+<footer>
+  Copyright CoreON
+</footer>
+
+<script>
+  // ===== 샘플 공지 데이터 (나중에 API 응답으로 교체 가능) =====
+  const notices = [
+    {
+      title: "[점검] 1/12(금) 02:00~03:00 시스템 점검 안내",
+      date: "2026-01-10",
+      dept: "IT 운영팀",
+      tag: "중요",
+      body:
+`점검 일정: 2026-01-12(금) 02:00 ~ 03:00
+
+영향 범위:
+- 로그인/회원 관련 일부 기능
+- FAQ 챗봇 응답 지연 가능
+
+안내:
+점검 시간 동안 일부 서비스 이용이 제한될 수 있습니다.
+업무에 참고 부탁드립니다.`
+    },
+    {
+      title: "[업데이트] 공지/FAQ 메뉴 개편 안내",
+      date: "2026-01-09",
+      dept: "서비스 기획",
+      tag: "업데이트",
+      body:
+`변경 내용:
+- 공지/FAQ 화면 구성 개선
+- 인트라넷 톤앤매너 통일
+- 모바일/작은 화면 대응 개선
+
+의견/요청사항은 게시판에 남겨주세요.`
+    },
+    {
+      title: "[안내] 신규 계정 발급 및 권한 요청 절차",
+      date: "2026-01-05",
+      dept: "인사/총무",
+      tag: "안내",
+      body:
+`절차 요약:
+1) 신규 입사자 정보 확인
+2) 계정 발급 요청(IT 운영팀)
+3) 권한 부여(부서장 승인 필요)
+4) 최초 로그인 후 비밀번호 변경
+
+자세한 문의는 IT 운영팀으로 전달해주세요.`
+    }
+  ];
+
+  // ===== 검색 =====
+  const searchInput = document.getElementById("search");
+  searchInput.addEventListener("input", () => {
+    const q = searchInput.value.trim().toLowerCase();
+    const items = document.querySelectorAll(".notice-item");
+    items.forEach((el, idx) => {
+      const t = notices[idx]?.title?.toLowerCase() || "";
+      const b = notices[idx]?.body?.toLowerCase() || "";
+      el.style.display = (t.includes(q) || b.includes(q)) ? "" : "none";
+    });
+  });
+
+  function resetSearch() {
+    searchInput.value = "";
+    const items = document.querySelectorAll(".notice-item");
+    items.forEach(el => el.style.display = "");
+  }
+
+  // ===== Modal open/close =====
+  function openNotice(idx) {
+    const n = notices[idx];
+    if (!n) return;
+
+    document.getElementById("mTitle").innerText = n.title;
+    document.getElementById("mMeta").innerHTML = `
+      <span style="font-size:12px; color: var(--muted);">${n.date}</span>
+      <span style="font-size:12px; color: var(--muted);">${n.dept}</span>
+      <span class="badge ${n.tag === "중요" ? "important" : (n.tag === "업데이트" ? "update" : "")}">${n.tag}</span>
+    `;
+    document.getElementById("mBody").innerText = n.body;
+
+    document.getElementById("modalBackdrop").style.display = "flex";
+  }
+
+  function closeModal(e) {
+    // backdrop 클릭 시 닫힘
+    document.getElementById("modalBackdrop").style.display = "none";
+  }
+
+  // ESC로 닫기
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeModal();
+  });
+</script>
+<script>
+  fetch("/main/header.html")
+    .then(res => {
+      if (!res.ok) throw new Error("Failed to load header");
+      return res.text();
+    })
+    .then(html => {
+      document.getElementById("app-header").innerHTML = html;
+    })
+    .catch(err => console.error(err));
+</script>
+</body>
+</html>

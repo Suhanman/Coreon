@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>CoreON - FAQ</title>
+  <style>
+    /* ====== CoreON Base (index/login/regist와 동일 톤) ====== */
+    :root{
+      --bg:#f5f7fb;
+      --surface:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --primary:#1f4bd8;
+      --primary-hover:#193db0;
+      --shadow:0 8px 24px rgba(17,24,39,.08);
+      --radius:14px;
+    }
+    *{box-sizing:border-box;}
+    body{
+      margin:0; padding:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",Arial,sans-serif;
+    }
+    a{color:inherit;text-decoration:none;}
+
+    /* ===== Header ===== */
+    header{background:var(--surface); border-bottom:1px solid var(--line);}
+    .main_div_header{
+      max-width:1100px; margin:0 auto;
+      padding:24px 20px 14px;
+      text-align:center;
+    }
+    .main_div_header h1{margin:0; font-size:28px;}
+    .main_div_header h3{margin:8px 0 0; font-size:14px; color:var(--muted); font-weight:500;}
+
+    .top-nav{
+      display:flex; justify-content:center; align-items:center;
+      gap:26px; margin-top:18px; padding:10px 0 6px;
+      flex-wrap:wrap;
+    }
+    .nav-item{
+      font-size:14px; font-weight:600;
+      padding:8px 6px; border-bottom:2px solid transparent;
+    }
+    .nav-item:hover{color:var(--primary); border-bottom-color:var(--primary);}
+    .nav-item.action{
+      padding:8px 12px; border:1px solid var(--line); border-radius:10px; background:#fff; font-weight:700;
+    }
+    .nav-item.action.primary{background:var(--primary); border-color:var(--primary); color:#fff;}
+    .nav-item.action.primary:hover{background:var(--primary-hover); border-color:var(--primary-hover);}
+
+    /* ===== Main Layout ===== */
+    main{max-width:1100px; margin:0 auto; padding:28px 20px 0;}
+    .page-title{
+      display:flex; align-items:baseline; gap:10px;
+      margin:6px 0 16px;
+    }
+    .page-title h2{margin:0; font-size:18px; font-weight:800;}
+    .page-title p{margin:0; color:var(--muted); font-size:13px;}
+
+    .layout{
+      display:grid;
+      grid-template-columns: 1.6fr 0.9fr; /* 왼쪽 챗, 오른쪽 추천 질문 */
+      gap:16px;
+      align-items:start;
+    }
+
+    .card{
+      background:var(--surface);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .card-head{
+      padding:14px 16px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+    }
+    .card-head .left{
+      display:flex; flex-direction:column; gap:2px;
+    }
+    .card-head .title{font-size:14px; font-weight:800; margin:0;}
+    .card-head .desc{font-size:12px; color:var(--muted); margin:0;}
+
+    /* ===== FAQ Chat UI ===== */
+    .chat-wrap{
+      display:flex;
+      flex-direction:column;
+      height: 560px; /* 화면에 안정적으로 보이게 */
+    }
+    .chat-list{
+      flex:1;
+      padding:16px;
+      overflow:auto;
+      background: #fbfcff;
+    }
+    .bubble{
+      max-width: 78%;
+      padding:10px 12px;
+      border-radius: 14px;
+      border:1px solid var(--line);
+      margin:10px 0;
+      line-height:1.55;
+      font-size:14px;
+      white-space:pre-wrap;
+      word-break:break-word;
+      background:#fff;
+    }
+    .bubble.bot{
+      align-self:flex-start;
+      border-top-left-radius: 6px;
+    }
+    .bubble.me{
+      align-self:flex-end;
+      background: rgba(31,75,216,0.06);
+      border-color: rgba(31,75,216,0.18);
+      border-top-right-radius: 6px;
+    }
+    .meta{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:6px;
+    }
+
+    .chat-input{
+      border-top:1px solid var(--line);
+      padding:12px;
+      background:#fff;
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    .chat-input input{
+      flex:1;
+      padding:12px 12px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      outline:none;
+      font-size:14px;
+      background:#fff;
+    }
+    .chat-input input:focus{
+      border-color: rgba(31,75,216,0.45);
+      box-shadow: 0 0 0 4px rgba(31,75,216,0.10);
+    }
+    .btn{
+      border:1px solid var(--line);
+      background:#fff;
+      padding:11px 14px;
+      border-radius:12px;
+      font-weight:800;
+      cursor:pointer;
+      font-size:14px;
+      white-space:nowrap;
+    }
+    .btn.primary{
+      background:var(--primary);
+      border-color:var(--primary);
+      color:#fff;
+    }
+    .btn.primary:hover{
+      background:var(--primary-hover);
+      border-color:var(--primary-hover);
+    }
+
+    /* ===== Right side: Quick FAQ ===== */
+    .list{
+      padding:12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .q-item{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:12px;
+      background:#fff;
+      cursor:pointer;
+      transition: box-shadow .15s ease, transform .15s ease, border-color .15s ease;
+    }
+    .q-item:hover{
+      border-color: rgba(31,75,216,0.25);
+      box-shadow: 0 6px 18px rgba(17,24,39,0.08);
+      transform: translateY(-1px);
+    }
+    .q-item .q{
+      font-weight:800; font-size:13px; margin:0 0 6px;
+    }
+    .q-item .s{
+      margin:0; color:var(--muted); font-size:12px; line-height:1.5;
+    }
+
+     .logo-link {
+        text-decoration: none;
+        color: inherit;      
+    }
+    .logo-link:hover {
+        color: inherit;      
+    }
+
+    /* ===== Footer ===== */
+    footer{
+      margin-top:80px;
+      text-align:center;
+      padding:20px 0;
+      border-top:1px solid var(--line);
+      color:var(--muted);
+      font-size:13px;
+      background:var(--surface);
+    }
+
+    @media (max-width: 960px){
+      .layout{grid-template-columns: 1fr;}
+      .chat-wrap{height: 520px;}
+    }
+  </style>
+</head>
+
+<body>
+<header>
+<div id="app-header"></div>
+<script src="/assets/app-header.js" defer></script>
+</header>
+
+<main>
+  <div class="page-title">
+    <h2>FAQ 챗봇</h2>
+    <p>사내 시스템/계정/이용 방법을 빠르게 안내합니다.</p>
+  </div>
+
+  <div class="layout">
+    <!-- ===== Left: Chat Card ===== -->
+    <section class="card">
+      <div class="card-head">
+        <div class="left">
+          <p class="title">질문하기</p>
+          <p class="desc">예: “비밀번호 초기화는 어떻게 해요?” / “게시판 글은 어디서 작성해요?”</p>
+        </div>
+        <button class="btn" type="button" onclick="clearChat()">대화 지우기</button>
+      </div>
+
+      <div class="chat-wrap">
+        <div class="chat-list" id="chatList">
+          <!-- 초기 안내 메시지 -->
+          <div class="bubble bot">
+            안녕하세요. CoreON FAQ 챗봇입니다.
+            궁금한 내용을 입력하면 안내해드릴게요.
+            <div class="meta">예: 비밀번호 재설정, 회원가입, 게시판 이용, 공지 확인</div>
+          </div>
+        </div>
+
+        <div class="chat-input">
+          <input id="q" type="text" placeholder="질문을 입력하세요 (Enter로 전송)" />
+          <button class="btn primary" type="button" onclick="ask()">전송</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Right: Quick questions ===== -->
+    <aside class="card">
+      <div class="card-head">
+        <div class="left">
+          <p class="title">자주 묻는 질문</p>
+          <p class="desc">클릭하면 자동으로 질문이 입력됩니다.</p>
+        </div>
+      </div>
+
+      <div class="list">
+        <div class="q-item" onclick="fillQuestion('비밀번호를 잊었어요. 초기화는 어떻게 하나요?')">
+          <p class="q">비밀번호 초기화</p>
+          <p class="s">로그인 불가 시 비밀번호 재설정 방법</p>
+        </div>
+
+        <div class="q-item" onclick="fillQuestion('회원가입 후 다음 단계는 무엇인가요?')">
+          <p class="q">회원가입 진행</p>
+          <p class="s">기본 정보 입력 후 프로필 설정 순서</p>
+        </div>
+
+        <div class="q-item" onclick="fillQuestion('게시판 글 작성은 어디서 하나요?')">
+          <p class="q">게시판 사용</p>
+          <p class="s">글 작성/수정/삭제 위치 안내</p>
+        </div>
+
+        <div class="q-item" onclick="fillQuestion('공지사항은 어디서 확인하나요?')">
+          <p class="q">공지 확인</p>
+          <p class="s">최신 공지 확인 경로</p>
+        </div>
+
+        <div class="q-item" onclick="fillQuestion('로그인이 안돼요. 세션 문제일 수 있나요?')">
+          <p class="q">로그인 오류</p>
+          <p class="s">세션/쿠키/권한 문제 점검</p>
+        </div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<footer>
+  Copyright CoreON
+</footer>
+
+<script>
+  const chatList = document.getElementById("chatList");
+  const qInput = document.getElementById("q");
+
+  qInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") ask();
+  });
+
+  function appendBubble(text, who="bot") {
+    const div = document.createElement("div");
+    div.className = "bubble " + (who === "me" ? "me" : "bot");
+    div.textContent = text;
+    chatList.appendChild(div);
+    chatList.scrollTop = chatList.scrollHeight;
+  }
+
+  function fillQuestion(text) {
+    qInput.value = text;
+    qInput.focus();
+  }
+
+  function clearChat() {
+    chatList.innerHTML = `
+      <div class="bubble bot">
+        안녕하세요. CoreON FAQ 챗봇입니다.
+        궁금한 내용을 입력하면 안내해드릴게요.
+        <div class="meta">예: 비밀번호 재설정, 회원가입, 게시판 이용, 공지 확인</div>
+      </div>
+    `;
+  }
+
+  // ✅ 현재는 데모: 나중에 여기에 fetch("/api/faq/ask") 붙이면 됨 - > : /api/faq/ask → OpenAI 호출 → answer 반환
+  async function ask() {
+    const q = qInput.value.trim();
+    if (!q) return;
+
+    appendBubble(q, "me");
+    qInput.value = "";
+
+    // ---- 데모 응답(나중에 API 연결로 교체) ----
+    const demo = `문의하신 내용: "${q}"
+- (예시) 관련 메뉴: FAQ / 공지 / 게시판
+- (예시) 담당 부서: IT 운영팀
+※ 실제 답변은 API 연결 후 제공됩니다.`;
+
+    // 약간의 지연(사용감)
+    setTimeout(() => appendBubble(demo, "bot"), 250);
+  }
+</script>
+<script>
+  fetch("/main/header.html")
+    .then(res => {
+      if (!res.ok) throw new Error("Failed to load header");
+      return res.text();
+    })
+    .then(html => {
+      document.getElementById("app-header").innerHTML = html;
+    })
+    .catch(err => console.error(err));
+</script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>내 정보 관리</title>
+
+    <style>
+        body {
+            background-color: #ffeaf4;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 0px;
+        }
+
+        .form-wrapper {
+            background-color: #fff0f5;
+            border: 3px solid #ffb6c1;
+            border-radius: 20px;
+            display: inline-block;
+            padding: 40px;
+            box-shadow: 0 0 15px rgba(255, 105, 180, 0.3);
+        }
+
+        h1 {
+            color: #ff3399;
+            margin-bottom: 30px;
+        }
+
+        .cute-button {
+            display: block;
+            width: 250px;
+            margin: 15px auto;
+            background: linear-gradient(to bottom, #ff80b5, #ff4d94);
+            color: white;
+            font-size: 18px;
+            padding: 12px 24px;
+            border: 3px solid white;
+            border-radius: 25px;
+            box-shadow: 0 5px 15px rgba(255, 105, 180, 0.4);
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .cute-button:hover {
+            transform: scale(1.05);
+            background: linear-gradient(to bottom, #ff99c8, #ff66a3);
+            box-shadow: 0 5px 20px rgba(255, 105, 180, 0.6);
+        }
+
+        .scute-button {
+            display: inline-block;
+            width: 80px;
+            height: 80px;
+            line-height: 80px;
+            text-align: center;
+            background: linear-gradient(to bottom, #ff80b5, #ff4d94);
+            color: white;
+            font-size: 28px;
+            border: 3px solid white;
+            border-radius: 50%;
+            box-shadow: 0 5px 15px rgba(255, 105, 180, 0.4);
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin: 20px auto;
+        }
+
+        .scute-button:hover {
+            transform: scale(1.15);
+            background: linear-gradient(to bottom, #ff99c8, #ff66a3);
+            box-shadow: 0 8px 25px rgba(255, 105, 180, 0.6);
+        }
+    </style>
+</head>
+
+<body>
+<div id="header-placeholder"></div>
+
+<div class="form-wrapper">
+    <h1>❤️ 내 정보 관리 ❤️</h1>
+
+    <button class="cute-button" onclick="location.href='editMember.html'">개인정보 수정</button>
+    <button class="cute-button" onclick="location.href='editProfile.html'">프로필 수정</button>
+    <button class="cute-button" onclick="location.href='editIdeal.html'">이상형 수정</button>
+</div>
+
+<div>
+    <button class="scute-button" onclick="location.href='../match/loginmain.html'">🏠</button>
+</div>
+
+<script>
+    //----------------------------------------------------------
+    // 1) header.html 로드
+    //----------------------------------------------------------
+    fetch("../match/header.html")
+        .then(res => res.text())
+        .then(html => document.getElementById("header-placeholder").innerHTML = html);
+
+
+    //----------------------------------------------------------
+    // 2) 세션 기반 로그인 여부 검사
+    //----------------------------------------------------------
+    async function checkSession() {
+        try {
+            const res = await fetch("/api/auth/check-session", {
+                method: "GET",
+                credentials: "include"  // ★ Redis 세션 쿠키 전송
+            });
+
+            const data = await res.json();
+
+            // 로그인 안 되어 있으면 로그인 페이지로
+            if (!data.id) {
+                alert("로그인이 필요합니다.");
+                location.href = "../auth/login.html";
+            }
+
+        } catch (err) {
+            console.error("세션 확인 실패:", err);
+            location.href = "../auth/login.html";
+        }
+    }
+
+    // 페이지 로드시 실행
+    checkSession();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>CoreON - 자료/공문 게시판</title>
+  <style>
+    /* ====== CoreON Base ====== */
+    :root{
+      --bg:#f5f7fb;
+      --surface:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --primary:#1f4bd8;
+      --primary-hover:#193db0;
+      --shadow:0 8px 24px rgba(17,24,39,.08);
+      --radius:14px;
+
+      --ok:#166534;
+      --warn:#b45309;
+    }
+    *{box-sizing:border-box;}
+    body{
+      margin:0; padding:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",Arial,sans-serif;
+    }
+    a{color:inherit;text-decoration:none;}
+
+    /* ===== Header ===== */
+    header{background:var(--surface); border-bottom:1px solid var(--line);}
+    .main_div_header{
+      max-width:1100px; margin:0 auto;
+      padding:24px 20px 14px;
+      text-align:center;
+    }
+    .main_div_header h1{margin:0; font-size:28px; letter-spacing:-.2px;}
+    .main_div_header h3{margin:8px 0 0; font-size:14px; color:var(--muted); font-weight:500;}
+
+    .top-nav{
+      display:flex; justify-content:center; align-items:center;
+      gap:26px; margin-top:18px; padding:10px 0 6px;
+      flex-wrap:wrap;
+    }
+    .nav-item{
+      font-size:14px; font-weight:600;
+      padding:8px 6px; border-bottom:2px solid transparent;
+      color:var(--text);
+    }
+    .nav-item:hover{color:var(--primary); border-bottom-color:var(--primary);}
+    .nav-item.active{color:var(--primary); border-bottom-color:var(--primary);}
+    .nav-item.action{
+      padding:8px 12px; border:1px solid var(--line); border-radius:10px;
+      background:#fff; font-weight:700;
+    }
+    .nav-item.action.primary{background:var(--primary); border-color:var(--primary); color:#fff;}
+    .nav-item.action.primary:hover{background:var(--primary-hover); border-color:var(--primary-hover);}
+
+     .logo-link {
+        text-decoration: none;
+        color: inherit;      
+    }
+    .logo-link:hover {
+        color: inherit;      
+    }
+    /* ===== Main ===== */
+    main{max-width:1100px; margin:0 auto; padding:28px 20px 0;}
+
+    .page-head{
+      display:flex; justify-content:space-between; align-items:flex-end;
+      gap:12px; flex-wrap:wrap;
+      margin: 6px 0 16px;
+    }
+    .page-title h2{margin:0; font-size:18px; font-weight:800;}
+    .page-title p{margin:6px 0 0; font-size:13px; color:var(--muted); line-height:1.6;}
+
+    .tools{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    }
+    .input, .select{
+      padding:11px 12px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      outline:none;
+      background:#fff;
+      font-size:14px;
+      color:var(--text);
+    }
+    .input:focus, .select:focus{
+      border-color: rgba(31,75,216,0.45);
+      box-shadow: 0 0 0 4px rgba(31,75,216,0.10);
+    }
+
+    .btn{
+      border:1px solid var(--line);
+      background:#fff;
+      padding:11px 14px;
+      border-radius:12px;
+      font-weight:800;
+      cursor:pointer;
+      font-size:14px;
+      white-space:nowrap;
+    }
+    .btn.primary{
+      background:var(--primary);
+      border-color:var(--primary);
+      color:#fff;
+    }
+    .btn.primary:hover{
+      background:var(--primary-hover);
+      border-color:var(--primary-hover);
+      box-shadow:0 6px 16px rgba(31,75,216,0.18);
+    }
+    .btn.ghost{
+      background:#fff;
+      border-color: rgba(31,75,216,0.25);
+      color: var(--primary);
+    }
+    .btn.ghost:hover{
+      border-color: rgba(31,75,216,0.45);
+      box-shadow:0 6px 16px rgba(31,75,216,0.10);
+    }
+
+    /* ===== Layout ===== */
+    .layout{
+      display:grid;
+      grid-template-columns: 1.55fr 0.95fr; /* 왼쪽 리스트, 오른쪽 상세/요약 */
+      gap:16px;
+      align-items:start;
+    }
+
+    .card{
+      background:var(--surface);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .card-head{
+      padding:14px 16px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+    }
+    .card-head .title{
+      margin:0;
+      font-size:14px;
+      font-weight:900;
+    }
+    .card-head .desc{
+      margin:4px 0 0;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .card-body{padding:12px;}
+
+    /* ===== Table list ===== */
+    .table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+    }
+    .table thead th{
+      text-align:left;
+      font-size:12px;
+      color:var(--muted);
+      font-weight:900;
+      padding:10px 12px;
+      border-bottom:1px solid var(--line);
+      background:#fff;
+      position:sticky;
+      top:0;
+      z-index:1;
+    }
+    .table tbody td{
+      padding:12px;
+      border-bottom:1px solid var(--line);
+      font-size:13px;
+      vertical-align:top;
+    }
+    .row-link{
+      cursor:pointer;
+      transition: background .15s ease;
+    }
+    .row-link:hover{
+      background: rgba(31,75,216,0.04);
+    }
+    .title-cell{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .title-cell strong{
+      font-size:14px;
+      font-weight:900;
+      letter-spacing:-.1px;
+    }
+    .submeta{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      color:var(--muted);
+      font-size:12px;
+    }
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      font-size:12px;
+      font-weight:900;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      white-space:nowrap;
+    }
+    .tag.notice{border-color: rgba(31,75,216,0.35); background: rgba(31,75,216,0.08); color: var(--primary);}
+    .tag.form{border-color: rgba(180,83,9,0.30); background: rgba(180,83,9,0.08); color: var(--warn);}
+    .tag.share{border-color: rgba(22,101,52,0.25); background: rgba(22,101,52,0.08); color: var(--ok);}
+
+    .file-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-size:12px;
+      padding:6px 10px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:#fff;
+      white-space:nowrap;
+    }
+
+    /* ===== Detail/Summary pane ===== */
+    .detail{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      padding:12px;
+    }
+    .kv{
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:#fff;
+      padding:12px;
+    }
+    .kv h4{
+      margin:0 0 10px;
+      font-size:13px;
+      font-weight:900;
+    }
+    .kv .line{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      padding:7px 0;
+      border-top:1px solid var(--line);
+      font-size:13px;
+    }
+    .kv .line:first-of-type{border-top:none;}
+    .kv .k{color:var(--muted); font-weight:800;}
+    .kv .v{font-weight:800; text-align:right;}
+
+    .summary-box{
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:#fff;
+      padding:12px;
+    }
+    .summary-box h4{
+      margin:0 0 8px;
+      font-size:13px;
+      font-weight:900;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+    }
+    .summary{
+      font-size:13px;
+      line-height:1.7;
+      color: var(--text);
+      white-space:pre-wrap;
+      min-height: 120px;
+    }
+    .hint{
+      color: var(--muted);
+      font-size:12px;
+      line-height:1.6;
+      margin-top:8px;
+    }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+
+    /* ===== Footer ===== */
+    footer{
+      margin-top:80px;
+      text-align:center;
+      padding:20px 0;
+      border-top:1px solid var(--line);
+      color:var(--muted);
+      font-size:13px;
+      background:var(--surface);
+    }
+
+    @media (max-width: 960px){
+      .layout{grid-template-columns: 1fr;}
+      .input{width:100%;}
+    }
+  </style>
+</head>
+
+<body>
+<header>
+<div id="app-header"></div>
+<script src="/assets/app-header.js" defer></script>
+</header>
+
+<main>
+  <div class="page-head">
+    <div class="page-title">
+      <h2>자료/공문 게시판</h2>
+      <p>사내 공문, 양식, 공유자료를 업로드합니다. </p>
+    </div>
+
+    <div class="tools">
+      <select id="filter" class="select">
+        <option value="all">전체</option>
+        <option value="공지성">공지성</option>
+        <option value="공문/양식">공문/양식</option>
+        <option value="공유자료">공유자료</option>
+      </select>
+      <input id="search" class="input" type="text" placeholder="제목/부서/작성자 검색" />
+      <button class="btn primary" type="button" onclick="alert('작성/업로드는 추후 백엔드 연결 예정입니다.')">자료 등록</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- ===== Left: List ===== -->
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <p class="title">문서 목록</p>
+          <p class="desc">항목을 클릭하면 우측에서 첨부/요약을 확인할 수 있습니다.</p>
+        </div>
+        <button class="btn" type="button" onclick="resetFilters()">초기화</button>
+      </div>
+
+      <div class="card-body" style="padding:0; max-height:620px; overflow:auto;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width:56%;">제목</th>
+              <th style="width:16%;">분류</th>
+              <th style="width:16%;">부서</th>
+              <th style="width:12%;">첨부</th>
+            </tr>
+          </thead>
+          <tbody id="boardTable">
+            <!-- 데모 데이터 -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== Right: Detail + Bedrock Summary ===== -->
+    <aside class="card">
+      <div class="card-head">
+        <div>
+          <p class="title">문서 상세</p>
+          <p class="desc">선택한 문서의 기본 정보와 요약을 확인합니다.</p>
+        </div>
+      </div>
+
+      <div class="detail">
+        <div class="kv">
+          <h4>기본 정보</h4>
+          <div class="line"><span class="k">제목</span><span class="v" id="dTitle">선택된 문서 없음</span></div>
+          <div class="line"><span class="k">분류</span><span class="v" id="dType">-</span></div>
+          <div class="line"><span class="k">부서</span><span class="v" id="dDept">-</span></div>
+          <div class="line"><span class="k">작성자</span><span class="v" id="dWriter">-</span></div>
+          <div class="line"><span class="k">등록일</span><span class="v" id="dDate">-</span></div>
+
+          <div class="actions">
+            <button class="btn" type="button" id="downloadBtn" disabled onclick="alert('첨부 다운로드는 추후 연결 예정입니다.')">첨부 다운로드</button>
+            <button class="btn ghost" type="button" id="previewBtn" disabled onclick="alert('미리보기는 추후 연결 예정입니다.')">미리보기</button>
+          </div>
+        </div>
+
+        <div class="summary-box">
+          <h4>
+            문서 요약
+            <button class="btn primary" type="button" id="summarizeBtn" disabled onclick="summarizeWithBedrock()">요약하기</button>
+          </h4>
+          <div class="summary" id="summaryText">
+선택한 문서가 없습니다.
+문서를 선택하면 Bedrock 요약 기능을 사용할 수 있습니다.
+          </div>
+          <div class="hint">
+            ※ 추후 AWS Bedrock 연동 시, “요약하기” 버튼이 문서 내용을 서버로 전송하고 요약 결과를 받아 표시합니다.
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<footer>
+  Copyright CoreON
+</footer>
+
+<script>
+  // ===== 데모 게시판 데이터 (나중에 API로 교체) =====
+  const docs = [
+    {
+      id: 101,
+      title: "2026년 정보보안 교육 이수 안내 공문",
+      type: "공지성",
+      dept: "IT 운영팀",
+      writer: "관리자",
+      date: "2026-01-10",
+      fileName: "security_training_2026.pdf"
+    },
+    {
+      id: 102,
+      title: "출장비 정산 양식(개정 v2)",
+      type: "공문/양식",
+      dept: "총무팀",
+      writer: "김OO",
+      date: "2026-01-08",
+      fileName: "expense_form_v2.docx"
+    },
+    {
+      id: 103,
+      title: "신규 입사자 온보딩 체크리스트",
+      type: "공유자료",
+      dept: "인사팀",
+      writer: "박OO",
+      date: "2026-01-05",
+      fileName: "onboarding_checklist.pdf"
+    }
+  ];
+
+  const tbody = document.getElementById("boardTable");
+  const searchInput = document.getElementById("search");
+  const filterSelect = document.getElementById("filter");
+
+  let selectedDoc = null;
+
+  function renderTable(list){
+    tbody.innerHTML = "";
+    list.forEach((d) => {
+      const tr = document.createElement("tr");
+      tr.className = "row-link";
+      tr.onclick = () => selectDoc(d.id);
+
+      const tagClass =
+        d.type === "공지성" ? "notice" :
+        d.type === "공문/양식" ? "form" : "share";
+
+      tr.innerHTML = `
+        <td>
+          <div class="title-cell">
+            <strong>${escapeHtml(d.title)}</strong>
+            <div class="submeta">
+              <span>${escapeHtml(d.date)}</span>
+              <span>${escapeHtml(d.writer)}</span>
+            </div>
+          </div>
+        </td>
+        <td><span class="tag ${tagClass}">${escapeHtml(d.type)}</span></td>
+        <td>${escapeHtml(d.dept)}</td>
+        <td><span class="file-pill">📎 ${escapeHtml(d.fileName)}</span></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function escapeHtml(str){
+    return String(str)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  function applyFilters(){
+    const q = searchInput.value.trim().toLowerCase();
+    const f = filterSelect.value;
+
+    const filtered = docs.filter(d => {
+      const matchesText =
+        d.title.toLowerCase().includes(q) ||
+        d.dept.toLowerCase().includes(q) ||
+        d.writer.toLowerCase().includes(q);
+
+      const matchesType = (f === "all") ? true : d.type === f;
+      return matchesText && matchesType;
+    });
+
+    renderTable(filtered);
+  }
+
+  function resetFilters(){
+    searchInput.value = "";
+    filterSelect.value = "all";
+    applyFilters();
+  }
+
+  // ===== 선택 문서 상세 =====
+  function selectDoc(id){
+    selectedDoc = docs.find(d => d.id === id);
+    if (!selectedDoc) return;
+
+    document.getElementById("dTitle").innerText = selectedDoc.title;
+    document.getElementById("dType").innerText = selectedDoc.type;
+    document.getElementById("dDept").innerText = selectedDoc.dept;
+    document.getElementById("dWriter").innerText = selectedDoc.writer;
+    document.getElementById("dDate").innerText = selectedDoc.date;
+
+    document.getElementById("downloadBtn").disabled = false;
+    document.getElementById("previewBtn").disabled = false;
+    document.getElementById("summarizeBtn").disabled = false;
+
+    document.getElementById("summaryText").innerText =
+      "요약을 보려면 “요약하기” 버튼을 누르세요.";
+  }
+
+  // ===== Bedrock 요약(데모) =====
+  async function summarizeWithBedrock(){
+    if (!selectedDoc) return;
+
+    const summaryEl = document.getElementById("summaryText");
+    summaryEl.innerText = "요약 생성 중... (데모)";
+
+    // ✅ 나중에 실제 연동 시 여기 fetch만 바꾸면 됨
+    // 예: const res = await fetch("/api/bedrock/summarize", { method:"POST", headers:{...}, body: JSON.stringify({ docId: selectedDoc.id }) });
+    // const data = await res.json(); summaryEl.innerText = data.summary;
+
+    setTimeout(() => {
+      summaryEl.innerText =
+`[데모 요약]
+- 문서명: ${selectedDoc.title}
+- 핵심: 사내 공지/양식/자료 공유를 위한 문서입니다.
+- 조치: 구성원은 안내에 따라 필요한 작업을 진행하세요.
+
+(※ 실제 요약은 AWS Bedrock 연동 후 제공됩니다.)`;
+    }, 400);
+  }
+
+  // 초기 렌더
+  renderTable(docs);
+
+  // 검색/필터 이벤트
+  searchInput.addEventListener("input", applyFilters);
+  filterSelect.addEventListener("change", applyFilters);
+</script>
+<script>
+  fetch("/main/header.html")
+    .then(res => {
+      if (!res.ok) throw new Error("Failed to load header");
+      return res.text();
+    })
+    .then(html => {
+      document.getElementById("app-header").innerHTML = html;
+    })
+    .catch(err => console.error(err));
+</script>
+</body>
+</html>

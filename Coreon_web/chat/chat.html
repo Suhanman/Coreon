@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>MatchBridge - 채팅</title>
+
+  <style>
+    body {
+      background-color: #ffeaf4;
+      text-align: center;
+      padding-top: 50px;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .phone-frame {
+      width: 360px;
+      height: 640px;
+      background-color: #fff0f7;
+      border: 8px solid #ffaad4;
+      border-radius: 40px;
+      margin: 0 auto;
+      box-shadow: 0 0 20px rgba(255, 105, 180, 0.4);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .chat-header {
+      background-color: #ff80b5;
+      padding: 20px;
+      color: white;
+      font-size: 22px;
+      font-weight: bold;
+      border-bottom: 3px solid white;
+    }
+
+    .chat-box {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      background-color: #fff;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message {
+      background-color: #ffe6f0;
+      padding: 10px 15px;
+      border-radius: 20px;
+      margin: 10px 0;
+      max-width: 70%;
+      display: inline-block;
+      text-align: left;
+    }
+
+    .message.me {
+      background-color: #ffb3d9;
+      align-self: flex-end;
+      margin-left: auto;
+    }
+
+    .chat-input-area {
+      display: flex;
+      border-top: 2px solid #ffaad4;
+      padding: 10px;
+      background-color: #fff0f7;
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: 10px;
+      border: 2px solid #ffaad4;
+      border-radius: 20px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    .send-button {
+      margin-left: 10px;
+      background: linear-gradient(to bottom, #ff80b5, #ff4d94);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 10px 18px;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(255, 105, 180, 0.3);
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 15px;
+      left: 20px;
+      background: #ff99c8;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      font-size: 14px;
+      border-radius: 15px;
+      cursor: pointer;
+      box-shadow: 0 3px 8px rgba(255, 105, 180, 0.3);
+    }
+  </style>
+</head>
+<body>
+
+<button class="back-btn" onclick="location.href='../match/loginmain.html'">← 돌아가기</button>
+
+<div class="phone-frame">
+  <div class="chat-header">💬 MatchBridge Chat</div>
+
+  <div id="chatTarget"
+       style="padding: 5px; font-size: 14px; color: #ff3399;">
+    채팅 상대: 로딩 중...
+  </div>
+
+  <div class="chat-box" id="chatBox"></div>
+
+  <div class="chat-input-area">
+    <input type="text" class="chat-input" id="messageInput"
+           placeholder="메시지를 입력하세요..."
+           onkeydown="if(event.key==='Enter') sendMessage();">
+    <button class="send-button" onclick="sendMessage()">전송</button>
+  </div>
+</div>
+
+<script>
+  //-----------------------------------------------------
+  // 0) URL에서 targetId 추출
+  //-----------------------------------------------------
+  const targetId = new URLSearchParams(location.search).get("targetId");
+  let myId = null;
+
+  if (!targetId) {
+    alert("잘못된 접근입니다.");
+    location.href = "loginmain.html";
+  }
+
+  const chatBox = document.getElementById("chatBox");
+  const input = document.getElementById("messageInput");
+
+
+  //-----------------------------------------------------
+  // 1) 로그인 사용자 정보(myId) 가져오기
+  //-----------------------------------------------------
+  async function loadMyId() {
+    const res = await fetch("/api/auth/check-session", {
+      method: "GET",
+      credentials: "include"
+    });
+
+    const data = await res.json();
+
+    if (!data.id) {
+      alert("로그인이 필요합니다!");
+      location.href = "login.html";
+      return;
+    }
+
+    myId = data.id;
+    console.log("내 ID:", myId);
+
+    loadTargetUser();
+    await markRead(targetId);
+    loadChatHistory();
+    connectWebSocket();
+  }
+  async function markRead(targetId) {
+    await fetch("/api/chat/read?otherId=" + targetId, {
+        method: "POST",
+        credentials: "include"
+    });
+}
+
+
+
+  //-----------------------------------------------------
+  // 2) 상대방 정보 표시
+  //-----------------------------------------------------
+  function loadTargetUser() {
+    fetch(`/api/member/${targetId}`)
+      .then(res => res.json())
+      .then(user => {
+        document.getElementById("chatTarget").innerHTML =
+                `채팅 상대: ${user.username} (${user.id})`;
+      })
+      .catch(() => {
+        document.getElementById("chatTarget").innerHTML =
+                `채팅 상대: ${targetId}`;
+      });
+  }
+
+
+  //-----------------------------------------------------
+  // 3) 채팅 기록 로드
+  //-----------------------------------------------------
+  function loadChatHistory() {
+    fetch(`/api/chat/history/${myId}/${targetId}`, {
+      credentials: "include"
+    })
+            .then(res => res.json())
+            .then(list => {
+              list.forEach(chat => {
+                const div = document.createElement("div");
+                div.classList.add("message");
+                if (chat.sender === myId) div.classList.add("me");
+                div.textContent = chat.content;
+                chatBox.appendChild(div);
+              });
+              chatBox.scrollTop = chatBox.scrollHeight;
+            });
+  }
+
+
+  //-----------------------------------------------------
+  // 4) WebSocket 연결
+  //-----------------------------------------------------
+  let socket = null;
+
+  function connectWebSocket() {
+    socket = new WebSocket(`/ws/chat?user=${myId}`);
+
+    socket.onopen = () => console.log("🟢 WebSocket 연결됨");
+
+    socket.onmessage = (event) => {
+      const msg = JSON.parse(event.data);
+
+      const div = document.createElement("div");
+      div.classList.add("message");
+
+      if (msg.from === myId) {
+        div.classList.add("me");
+      }
+
+      div.textContent = msg.message;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    };
+  }
+
+
+  //-----------------------------------------------------
+  // 5) 메시지 전송
+  //-----------------------------------------------------
+  function sendMessage() {
+    const text = input.value.trim();
+    if (!text) return;
+
+    socket.send(JSON.stringify({
+      sender: myId,
+      receiver: targetId,
+      message: text
+    }));
+
+    input.value = "";
+    input.focus();
+  }
+
+
+  //-----------------------------------------------------
+  // 🔥 실행 시작
+  //-----------------------------------------------------
+  loadMyId();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>CoreON - 회원가입</title>
+  <style>
+    /* ====== Base (index.html과 통일) ====== */
+    :root {
+      --bg: #f5f7fb;
+      --surface: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --primary: #1f4bd8;
+      --primary-hover: #193db0;
+      --shadow: 0 8px 24px rgba(17, 24, 39, 0.08);
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; }
+
+    body {
+      background-color: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: var(--text);
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    /* ====== Header ====== */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+    }
+    .main_div_header {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 20px 14px;
+      text-align: center;
+    }
+    .main_div_header h1 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: -0.2px;
+    }
+    .main_div_header h3 {
+      margin: 8px 0 0;
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .top-nav {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 26px;
+      margin-top: 18px;
+      padding: 10px 0 6px;
+      flex-wrap: wrap;
+    }
+    .nav-item {
+      font-size: 14px;
+      color: var(--text);
+      padding: 8px 6px;
+      border-bottom: 2px solid transparent;
+      font-weight: 600;
+    }
+    .nav-item:hover {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .nav-item.action {
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      font-weight: 700;
+    }
+    .nav-item.action:hover {
+      border-color: rgba(31, 75, 216, 0.35);
+      box-shadow: 0 4px 12px rgba(31, 75, 216, 0.10);
+      border-bottom-color: transparent;
+    }
+    .nav-item.action.primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+    .nav-item.action.primary:hover {
+      background: var(--primary-hover);
+      border-color: var(--primary-hover);
+      box-shadow: 0 6px 16px rgba(31, 75, 216, 0.18);
+    }
+
+     .logo-link {
+        text-decoration: none;
+        color: inherit;      
+    }
+    .logo-link:hover {
+        color: inherit;      
+    }
+
+    /* ====== Main ====== */
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 36px 20px 0;
+      text-align: center;
+    }
+
+    .card {
+      display: inline-block;
+      width: min(720px, 100%);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 28px 28px;
+      margin-top: 28px;
+      text-align: left;
+    }
+
+    .title {
+      margin: 0 0 6px;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.2px;
+    }
+    .subtitle {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* ====== Form layout ====== */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .field {
+      margin-bottom: 2px;
+    }
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    input[type="text"], input[type="password"], select {
+      width: 100%;
+      padding: 12px 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      outline: none;
+      font-size: 14px;
+      background: #fff;
+      color: var(--text);
+    }
+    input[type="text"]:focus,
+    input[type="password"]:focus,
+    select:focus {
+      border-color: rgba(31, 75, 216, 0.45);
+      box-shadow: 0 0 0 4px rgba(31, 75, 216, 0.10);
+    }
+
+    /* 도움/검증 메시지 */
+    .help {
+      font-size: 12px;
+      margin-top: 6px;
+      min-height: 16px;
+      font-weight: 700;
+    }
+    .help.ok { color: #166534; }      /* green-800 */
+    .help.bad { color: #b91c1c; }     /* red-700 */
+
+    /* 파일 업로드 */
+    .upload-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .btn {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .btn:hover {
+      border-color: rgba(17, 24, 39, 0.15);
+      box-shadow: 0 6px 16px rgba(17, 24, 39, 0.06);
+    }
+    .btn.primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+    .btn.primary:hover {
+      background: var(--primary-hover);
+      border-color: var(--primary-hover);
+      box-shadow: 0 6px 16px rgba(31, 75, 216, 0.18);
+    }
+
+    .preview {
+      margin-top: 10px;
+      display: none;
+      width: 140px;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+
+    #msg {
+      display: block;
+      margin-top: 12px;
+      font-size: 13px;
+      font-weight: 800;
+      color: #b91c1c;
+      min-height: 18px;
+    }
+
+    /* ====== Footer ====== */
+    footer {
+      margin-top: 80px;
+      text-align: center;
+      padding: 20px 0;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+      background: var(--surface);
+    }
+
+    @media (max-width: 720px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ===== HEADER ===== -->
+  <header>
+    <div class="main_div_header">
+      <h1><a class="logo-link" href="/index.html">CoreON</h1>
+      <h3>일의 중심이 되는 곳</h3>
+
+      <nav class="top-nav">
+        <!-- <a href="/board/list.html" class="nav-item">게시판</a>
+        <a href="/board/notice.html" class="nav-item">공지</a>
+        <a href="/faq/faq.html" class="nav-item">FAQ</a> -->
+
+        <a href="/auth/login.html" class="nav-item action">로그인</a>
+        <a href="/auth/regist.html" class="nav-item action primary">회원가입</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===== MAIN ===== -->
+  <main>
+    <div class="card">
+      <h2 class="title">회원가입</h2>
+      <p class="subtitle">
+        기본 정보를 입력하세요
+      </p>
+
+      <!-- 서버 redirect 기반 msg 대신, JS에서 직접 메시지 표시용 -->
+      <span id="msg"></span>
+
+      <!-- 🔥 REST 버전: submit 안 씀 -->
+      <form id="f" enctype="multipart/form-data" onsubmit="return false;">
+        <div class="grid">
+          <div class="field">
+            <label class="label" for="id">아이디</label>
+            <input type="text" id="id" name="id" placeholder="아이디" required />
+            <div id="idCheckLabel" class="help"></div>
+          </div>
+
+          <div class="field">
+            <label class="label" for="username">이름</label>
+            <input type="text" id="username" name="username" placeholder="이름" required />
+          </div>
+
+          <div class="field">
+            <label class="label" for="pw">비밀번호</label>
+            <input type="password" id="pw" name="pw" placeholder="비밀번호" oninput="pwCheck()" required />
+          </div>
+
+          <div class="field">
+            <label class="label" for="confirm">비밀번호 확인</label>
+            <input type="password" id="confirm" name="confirm" placeholder="비밀번호 확인" onchange="pwCheck()" required />
+            <div id="label" class="help"></div>
+          </div>
+
+          <div class="field">
+            <label class="label" for="mobile">전화번호</label>
+            <input type="text" id="mobile" name="mobile" placeholder="전화번호" required />
+          </div>
+
+          <div class="field">
+            <label class="label" for="email">이메일</label>
+            <input type="text" id="email" name="email" placeholder="이메일 주소" required />
+          </div>
+
+          <div class="field">
+            <label class="label" for="dept">소속 부서</label>
+            <input type="text" id="dept" name="dept" placeholder="소속 부서" required />
+          </div>
+
+
+          <div class="field">
+            <label class="label" for="position">직급</label>
+            <input type="text" id="position" name="position" placeholder="직급" required />
+          </div>
+
+       
+
+          <!-- <div class="field full">
+            <label class="label">프로필 이미지</label>
+
+            <div class="upload-row">
+              <input type="file" id="imageFile" name="imageFile" accept="image/*" style="display:none;" />
+              <button type="button" id="customFileBtn" class="btn">이미지 선택</button>
+              <span style="color:var(--muted); font-size:13px;">선택 사항</span>
+            </div>
+
+            <img id="preview" class="preview" src="" alt="이미지 미리보기" />
+          </div>
+        </div> -->
+
+        <div class="actions">
+          <button type="button" class="btn" onclick="cancelJoin()">취소</button>
+          <button type="button" class="btn primary" onclick="submitRegister()">회원가입</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <footer>
+    Copyright CoreON
+  </footer>
+  
+  <script>
+  let isDuplicateId = false;
+
+
+    // ==============================
+    // 비밀번호 체크
+    // ==============================
+    function pwCheck() {
+      const pw = document.getElementById("pw").value;
+      const confirm = document.getElementById("confirm").value;
+      const label = document.getElementById("label");
+
+      if (pw.length < 5) {
+        label.innerText = "비밀번호는 5자리 이상 입력하세요.";
+        label.className = "help bad";
+      } else if (pw !== confirm) {
+        label.innerText = "비밀번호가 일치하지 않습니다.";
+        label.className = "help bad";
+      } else {
+        label.innerText = "비밀번호가 일치합니다.";
+        label.className = "help ok";
+      }
+    }
+
+    // ==============================
+    // 아이디 중복체크 (REST) - /api/auth/check-id
+    // ==============================
+    document.getElementById("id").addEventListener("blur", function () {
+      const id = this.value.trim();
+      if (!id) return;
+
+      fetch("http://localhost:8080/api/auth/check-id?id=" + encodeURIComponent(id))
+        .then(response => response.json())
+        .then(result => {
+          const label = document.getElementById("idCheckLabel");
+          if (result.duplicate) {
+            label.innerText = "이미 사용 중인 아이디입니다.";
+            label.className = "help bad";
+            isDuplicateId = true;
+          } else {
+            label.innerText = "사용 가능한 아이디입니다.";
+            label.className = "help ok";
+            isDuplicateId = false;
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          const label = document.getElementById("idCheckLabel");
+          label.innerText = "중복체크 중 오류 발생";
+          label.className = "help bad";
+        });
+    });
+
+    // ==============================
+    // 다음 단계로 이동: 기본정보 + (필요 시) 이미지 업로드
+    // ==============================
+   async function submitRegister() {
+  const form = document.getElementById("f");
+  const data = new FormData(form);
+
+  const payload = {
+    id: (data.get("id") || "").trim(),
+    pw: data.get("pw") || "",
+    confirm: data.get("confirm") || "",
+    username: (data.get("username") || "").trim(),
+    email: (data.get("email") || "").trim(),
+    mobile: (data.get("mobile") || "").trim(),
+    dept: (data.get("dept") || "").trim(),
+    position: (data.get("position") || "").trim()
+  };
+
+  // 1) 아이디 중복 체크 결과 반영
+  if (isDuplicateId) {
+    alert("이미 사용 중인 아이디입니다.");
+    return;
+  }
+
+  // 2) 필수값 검증
+  for (const [k, v] of Object.entries(payload)) {
+    if (!v) {
+      alert("모든 항목을 입력해주세요.");
+      return;
+    }
+  }
+
+  // 3) 비밀번호 검증
+  if (payload.pw.length < 5) {
+    alert("비밀번호는 5자리 이상 입력하세요.");
+    return;
+  }
+  if (payload.pw !== payload.confirm) {
+    alert("비밀번호가 일치하지 않습니다.");
+    return;
+  }
+
+  // 4) 가입 API 호출
+  try {
+    const res = await fetch("http://localhost:8080/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      // 서버가 JSON 에러를 주면 message 보여주기
+      const err = await res.json().catch(() => ({}));
+      alert(err.message || "회원가입 실패");
+      return;
+    }
+
+    alert("회원가입이 완료되었습니다. 로그인 화면으로 이동합니다.");
+    location.href = "/auth/login.html";
+  } catch (e) {
+    console.error(e);
+    alert("네트워크 오류로 회원가입에 실패했습니다.");
+  }
+}
+
+
+    // ==============================
+    // 가입 취소
+    // ==============================
+    function cancelJoin() {
+      sessionStorage.clear();
+      location.href = '../index.html';
+    }
+  </script>
+</body>
+</html>

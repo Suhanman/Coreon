@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>최근 메시지</title>
+
+    <style>
+        body {
+            background-color: #ffeaf4;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 30px;
+            font-size: 26px;
+            color: #ff3399;
+        }
+
+        .match-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 20px 60px 20px;
+            gap: 14px;
+        }
+
+        .card {
+            width: 90%;
+            max-width: 550px;
+            display: flex;
+            align-items: center;
+            border: 3px dotted #ffaad4;
+            padding: 14px;
+            background-color: #fff0f7;
+            border-radius: 20px;
+            box-shadow: 0 0 15px rgba(255, 105, 180, 0.2);
+            transition: transform 0.2s ease-in-out;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 25px rgba(255, 105, 180, 0.3);
+        }
+
+        .profile-img {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #a3baff;
+            margin-right: 18px;
+        }
+
+        .chat-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .name {
+            font-size: 17px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .sub-info {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .last-message {
+            margin-top: 6px;
+            font-size: 14px;
+            color: #444;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .time {
+            margin-top: 6px;
+            font-size: 12px;
+            color: gray;
+            text-align: right;
+        }
+
+        .badge2 {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #ff3366;
+            color: white;
+            border-radius: 14px;
+            padding: 5px 10px;
+            font-size: 14px;
+            font-weight: bold;
+            min-width: 26px;
+            text-align: center;
+            box-shadow: 0 3px 8px rgba(255,105,180,0.4);
+            z-index: 10;
+        }
+        .back-btn {
+      position: absolute;
+      top: 15px;
+      left: 20px;
+      background: #ff99c8;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      font-size: 14px;
+      border-radius: 15px;
+      cursor: pointer;
+      box-shadow: 0 3px 8px rgba(255, 105, 180, 0.3);
+    }
+    </style>
+</head>
+<body>
+<div id="header-placeholder"></div>
+<h2>💬 채팅방</h2>
+
+<div class="match-container" id="chatList"></div>
+
+<script>
+    fetch("../match/header.html")
+        .then(res => res.text())
+        .then(html => document.getElementById("header-placeholder").innerHTML = html);
+
+    
+    // ----------------------------------------------------------------
+    // 1) 최근 채팅 사용자 목록 불러오기 (Chat-Service)
+    // ----------------------------------------------------------------
+    async function loadRecentChats() {
+        try {
+            const res = await fetch("/api/chat/chatroom", {
+                method: "GET",
+                credentials: "include"
+            });
+
+            const data = await res.json();
+            renderChatList(data);
+        } catch (e) {
+            console.error("최근 채팅 목록 로딩 실패:", e);
+        }
+    }
+
+    // ----------------------------------------------------------------
+    // 2) 화면에 카드 렌더링
+    // ----------------------------------------------------------------
+    function renderChatList(list) {
+        const container = document.getElementById("chatList");
+        container.innerHTML = "";
+
+        if (!list || list.length === 0) {
+            container.innerHTML = `<p style="color:gray;">최근 메시지를 주고받은 사용자가 없습니다.</p>`;
+            return;
+        }
+
+        list.forEach(chat => {
+            container.insertAdjacentHTML("beforeend", `
+                <div class="card" onclick="openChat('${chat.otherId}')">
+
+                    ${chat.unreadCount > 0 ? `<span class="badge2">${chat.unreadCount}</span>` : ""}
+
+                    <img src="${chat.imageUrl}" class="profile-img">
+
+                    <div class="chat-info">
+                        <div class="top-row">
+                            <div class="name">${chat.username}</div>
+                            <div class="sub-info">${chat.age}세 · ${chat.home}</div>
+                        </div>
+
+                        <div class="last-message">🗨️ ${chat.lastMessage}</div>
+                        <div class="time">${chat.lastMessageTime}</div>
+                    </div>
+
+                </div>
+            `);
+        });
+    }
+
+    // ----------------------------------------------------------------
+    // 3) 카드 클릭 시 → chat.html로 이동
+    // ----------------------------------------------------------------
+    function openChat(targetId) {
+        location.href = `chat.html?targetId=${targetId}`;
+    }
+
+    // ----------------------------------------------------------------
+    // 4) 실행 시작
+    // ----------------------------------------------------------------
+    loadRecentChats();
+</script>
+
+</body>
+</html>
