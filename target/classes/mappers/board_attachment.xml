@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.coreon.board.mapper.BoardAttachmentMapper">
+
+    <sql id="AttachmentColumns">
+        attachment_id,
+        board_id,
+        original_name,
+        stored_url,
+        content_type,
+        size_bytes,
+        created_at
+    </sql>
+
+    <!-- 1) insert -->
+    <insert id="insertAttachment"
+            parameterType="com.coreon.board.domain.BoardAttachment"
+            useGeneratedKeys="true"
+            keyProperty="attachmentId"
+            keyColumn="attachment_id">
+        INSERT INTO board_attachment
+        (board_id, original_name, stored_url, content_type, size_bytes)
+        VALUES
+        (#{boardId}, #{originalName}, #{storedUrl}, #{contentType}, #{sizeBytes})
+    </insert>
+
+    <!-- 2) list by board -->
+    <select id="selectByBoardId" resultType="com.coreon.board.domain.BoardAttachment">
+        SELECT <include refid="AttachmentColumns"/>
+        FROM board_attachment
+        WHERE board_id = #{boardId}
+        ORDER BY attachment_id DESC
+    </select>
+
+    <!-- 3) select by attachmentId -->
+    <select id="selectById" resultType="com.coreon.board.domain.BoardAttachment">
+        SELECT <include refid="AttachmentColumns"/>
+        FROM board_attachment
+        WHERE attachment_id = #{attachmentId}
+    </select>
+
+    <!-- 4) delete -->
+    <delete id="deleteById">
+        DELETE FROM board_attachment
+        WHERE attachment_id = #{attachmentId}
+    </delete>
+    
+    <delete id="deleteByBoardId">
+  		DELETE FROM board_attachment WHERE board_id = #{boardId}
+	</delete>
+    
+
+</mapper>
