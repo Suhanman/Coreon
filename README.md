@@ -87,7 +87,7 @@ CREATE TABLE IF NOT EXISTS board_attachment (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 ```
-board_pos 테이블
+board_post 테이블
 ```
 
 CREATE TABLE IF NOT EXISTS board_post (
