@@ -65,3 +65,46 @@ COLLATE='utf8mb4_general_ci'
 ENGINE=InnoDB
 ;
 ```
+
+board_attachment 테이블
+```
+CREATE TABLE IF NOT EXISTS board_attachment (
+  attachment_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  board_id BIGINT NOT NULL,
+
+  original_name VARCHAR(255) NOT NULL,
+  stored_url VARCHAR(500) NOT NULL,
+
+  content_type VARCHAR(100) NULL,
+  size_bytes BIGINT NULL,
+
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  KEY idx_board_id (board_id),
+  CONSTRAINT fk_attachment_board
+    FOREIGN KEY (board_id) REFERENCES board_post(board_id)
+    ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+```
+board_pos 테이블
+```
+
+CREATE TABLE IF NOT EXISTS board_post (
+  board_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+
+  category VARCHAR(50) NOT NULL,
+  title VARCHAR(200) NOT NULL,
+  content TEXT NULL,
+
+  dept VARCHAR(100) NULL,
+
+  author_employee_no BIGINT NOT NULL,
+  author_name VARCHAR(100) NOT NULL,
+
+  view_count BIGINT NOT NULL DEFAULT 0,
+
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=UTF8MB4;
+
