@@ -45,13 +45,25 @@
         WHERE notice_id = #{noticeId}
     </select>
 
-    <insert id="insertNotice">
-        INSERT INTO notice (
-            category, title, content, publisher_dept, created_by
-        ) VALUES (
-            #{req.category}, #{req.title}, #{req.content}, #{req.publisherDept}, #{createdBy}
-        )
-    </insert>
+   <insert id="insertNotice"
+        useGeneratedKeys="true"
+        keyProperty="req.noticeId"
+        keyColumn="notice_id">
+    INSERT INTO notice (
+        category,
+        title,
+        content,
+        publisher_dept,
+        created_by
+    ) VALUES (
+        #{req.category},
+        #{req.title},
+        #{req.content},
+        #{req.publisherDept},
+        #{actorId}
+    )
+</insert>
+
 
     <update id="updateNotice">
         UPDATE notice

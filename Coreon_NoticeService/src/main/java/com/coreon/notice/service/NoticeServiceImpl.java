@@ -35,12 +35,14 @@ public class NoticeServiceImpl implements NoticeService {
 
     @Override
     @Transactional
-    public Long create(NoticeRequest req, String actorRole, String actorId) {
+    public Long create(NoticeRequest req, String actorRole, String actorId, String actorDept) {
         requireAdmin(actorRole);
+        
+        req.setPublisherDept(actorDept);
         mapper.insertNotice(req, actorId);
         // MyBatis에서 생성 PK를 받으려면 useGeneratedKeys를 쓰거나 selectKey를 추가해야 함.
         // 일단 “생성 성공”만 필요하면 void로 시작해도 됨.
-        return null;
+        return req.getNoticeId();
     }
 
     @Override

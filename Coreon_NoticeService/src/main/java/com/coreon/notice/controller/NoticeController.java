@@ -20,6 +20,19 @@ import java.util.Map;
 public class NoticeController {
 
     private final NoticeService service;
+    
+    private String requireDept(HttpSession session) {
+        Object v = session.getAttribute("dept"); // 실제 저장 키가 다르면 여기만 바꾸세요.
+        if (v == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "세션에 부서 정보(dept)가 없습니다.");
+        }
+        String dept = String.valueOf(v).trim();
+        if (dept.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "세션에 부서 정보(dept)가 없습니다.");
+        }
+        return dept;
+    }
+
 
     public NoticeController(NoticeService service) {
         this.service = service;
@@ -98,28 +111,21 @@ public class NoticeController {
     // POST /api/notice/items
     // =========================
     @PostMapping("/items")
-    public ResponseEntity<Map<String, Object>> create(
-            HttpSession session,
-            @RequestBody NoticeRequest req
-    ) {
-        String actorId = requireLoginId(session);
+    public ResponseEntity<Map<String, Object>> create(HttpSession session, @RequestBody NoticeRequest req) {
+        String actorId   = requireLoginId(session);
         String actorRole = requireAdminRole(session);
+        String actorDept = requireDept(session);
 
-        Long noticeId = service.create(req, actorRole, actorId);
+        Long noticeId = service.create(req, actorRole, actorId, actorDept);
 
-        // service.create가 현재 null 반환이므로(너가 올린 코드 그대로)
-        // 1) 바로 noticeId를 반환하게 고치면 아래 응답이 정상 동작
-        // 2) 지금은 null일 수 있으니 message만 내려도 되게 방어
         if (noticeId == null) {
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(Map.of("message", "공지 등록 완료"));
+            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "공지 등록 완료"));
         }
-
         return ResponseEntity
                 .created(URI.create("/api/notice/items/" + noticeId))
                 .body(Map.of("message", "공지 등록 완료", "noticeId", noticeId));
     }
+
 
     // =========================
     // 4) 공지 수정 (ADMIN)

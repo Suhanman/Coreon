@@ -20,7 +20,7 @@ public interface NoticeMapper {
     NoticeDetailResponse selectNoticeDetail(@Param("noticeId") Long noticeId);
 
     int insertNotice(@Param("req") NoticeRequest req,
-                     @Param("createdBy") String createdBy);
+                     @Param("actorId") String actorId);
 
     int updateNotice(@Param("noticeId") Long noticeId,
                      @Param("req") NoticeRequest req);

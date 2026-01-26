@@ -50,11 +50,11 @@ public class S3service {
         metadata.setContentType(file.getContentType());
         metadata.setContentLength(file.getSize());
 
-        PutObjectRequest request = new PutObjectRequest(bucketName, key, file.getInputStream(), metadata);
-        amazonS3.putObject(request);
+        amazonS3.putObject(new PutObjectRequest(bucketName, key, file.getInputStream(), metadata));
 
-        return amazonS3.getUrl(bucketName, key).toString(); // storedUrl로 DB에 저장되는 값
+        return key; // ✅ DB에는 URL 말고 key 저장
     }
+
 
     // ============================
     // ✅ Presigned Download URL 발급

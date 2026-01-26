@@ -1,10 +1,19 @@
 package com.coreon.notice.dto;
 
 public class NoticeRequest {
+	private Long noticeId;
     private String category;      // INSPECTION / UPDATE / GUIDE
     private String title;
     private String content;
-    private String publisherDept; // 선택
+    private String publisherDept;
+    
+    
+	public Long getNoticeId() {
+		return noticeId;
+	}
+	public void setNoticeId(Long noticeId) {
+		this.noticeId = noticeId;
+	}
 	public String getCategory() {
 		return category;
 	}
