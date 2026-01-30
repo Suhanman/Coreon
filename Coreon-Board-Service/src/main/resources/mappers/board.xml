@@ -5,27 +5,26 @@
 
 <mapper namespace="com.coreon.board.mapper.BoardPostMapper">
 
-    <!-- 공통 컬럼 목록 -->
+    <!-- ✅ SELECT에서만 alias 적용 -->
     <sql id="BoardPostColumns">
-        board_id,
+        board_id as boardId,
         category,
         title,
         content,
         dept,
-        author_employee_no,
-        author_name,
+        author_id,
+        author_name as authorname,
         view_count,
-        created_at,
+        created_at as createdat,
         updated_at
     </sql>
 
     <!-- 1) 목록 조회 -->
-    <select id="selectPosts" resultType="com.coreon.board.domain.BoardPost">
+    <select id="selectPosts" resultType="com.coreon.board.dto.response.BoardPostListItemResponse">
         SELECT
         <include refid="BoardPostColumns"/>
         FROM board_post
         <where>
-            <!-- category 필터: 'all' 이거나 null/빈값이면 제외 -->
             <if test="category != null and category != '' and category != 'all'">
                 AND category = #{category}
             </if>
@@ -34,11 +33,10 @@
                 AND dept = #{dept}
             </if>
 
-            <if test="authorEmployeeNo != null">
-                AND author_employee_no = #{authorEmployeeNo}
+            <if test="authorid != null and authorid != ''">
+                AND author_id = #{authorid}
             </if>
 
-            <!-- q: 제목/본문 통합 검색 -->
             <if test="q != null and q != ''">
                 AND (
                     title LIKE CONCAT('%', #{q}, '%')
@@ -49,7 +47,6 @@
             </if>
         </where>
 
-        <!-- 정렬 -->
         <choose>
             <when test="sort == 'createdAtAsc'">
                 ORDER BY created_at ASC
@@ -78,8 +75,8 @@
                 AND dept = #{dept}
             </if>
 
-            <if test="authorEmployeeNo != null">
-                AND author_employee_no = #{authorEmployeeNo}
+            <if test="authorid != null and authorid != ''">
+                AND author_id = #{authorid}
             </if>
 
             <if test="q != null and q != ''">
@@ -104,64 +101,64 @@
     <!-- 4) 조회수 증가 -->
     <update id="incrementViewCount">
         UPDATE board_post
-        SET view_count = view_count + 1,
-            updated_at = updated_at
+        SET view_count = view_count + 1
         WHERE board_id = #{boardId}
     </update>
-    
-    <insert id="insertPost" parameterType="com.coreon.board.domain.BoardPost"
-        useGeneratedKeys="true" keyProperty="boardId">
-  		INSERT INTO board_post (
-    		category,
-    		title,
-    		content,
-    		dept,
-    		author_employee_no,
-    		author_name
-  		) VALUES (
-    		#{category},
-    		#{title},
-    		#{content},
-    		#{dept},
-   		    #{authorEmployeeNo},
-    		#{authorName}
- 		 )
-		</insert>
-		
-		<!-- 5) 작성자 사번 조회( 게시글 삭제를 위함)  -->
-		<select id="selectAuthorEmployeeNo" resultType="long">
-        SELECT author_employee_no
+
+    <!-- 5) 게시글 저장 -->
+    <insert id="insertPost"
+            parameterType="com.coreon.board.domain.BoardPost"
+            useGeneratedKeys="true"
+            keyProperty="boardId">
+        INSERT INTO board_post (
+            category,
+            title,
+            content,
+            dept,
+            author_id,
+            author_name
+        ) VALUES (
+            #{category},
+            #{title},
+            #{content},
+            #{dept},
+            #{authorid},
+            #{authorname}
+        )
+    </insert>
+
+    <!-- 6) 작성자 id 조회(게시글 삭제/수정을 위함) -->
+    <select id="selectAuthorId" resultType="string">
+        SELECT author_id
         FROM board_post
         WHERE board_id = #{boardId}
     </select>
 
-    <!-- 6) 게시글 삭제 -->
+    <!-- 7) 게시글 삭제 -->
     <delete id="deletePostById">
         DELETE FROM board_post
         WHERE board_id = #{boardId}
     </delete>
-    
-    <!-- 7) 게시글 수정 -->
-    
+
+    <!-- 8) 게시글 수정 -->
     <update id="updatePost" parameterType="com.coreon.board.domain.BoardPost">
-  UPDATE board_post
-  <set>
-    <if test="category != null and category != ''">
-      category = #{category},
-    </if>
-    <if test="title != null and title != ''">
-      title = #{title},
-    </if>
-    <if test="content != null">
-      content = #{content},
-    </if>
-    <if test="dept != null and dept != ''">
-      dept = #{dept},
-    </if>
-    updated_at = NOW()
-  </set>
-  	WHERE board_id = #{boardId}
-</update>
-    
+        UPDATE board_post
+        <set>
+            <if test="category != null and category != ''">
+                category = #{category},
+            </if>
+            <if test="title != null and title != ''">
+                title = #{title},
+            </if>
+            <if test="content != null">
+                content = #{content},
+            </if>
+            <if test="dept != null and dept != ''">
+                dept = #{dept},
+            </if>
+            updated_at = NOW()
+        </set>
+        WHERE board_id = #{boardId}
+    </update>
 
 </mapper>

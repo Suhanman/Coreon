@@ -1,154 +1,124 @@
 package com.coreon.board.controller;
 
-import com.coreon.board.domain.BoardAttachment;
-import com.coreon.board.domain.BoardPost;
-import com.coreon.board.mapper.BoardAttachmentMapper;
-import com.coreon.board.mapper.BoardPostMapper;
+import com.coreon.board.dto.request.CreatePostReq;
+import com.coreon.board.dto.request.UpdatePostReq;
+import com.coreon.board.dto.response.CreatePostRes;
+import com.coreon.board.dto.response.UpdatePostRes;
 import com.coreon.board.service.BoardPostService;
-import com.coreon.board.service.S3service;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/board")
 public class BoardPostController {
 
-    private final BoardPostMapper boardPostMapper;
-    private final BoardAttachmentMapper boardAttachmentMapper;
-    private final S3service storageService;
     private final BoardPostService boardPostService;
 
-    // ✅ 생성자에 boardPostService를 반드시 주입해야 final 필드 컴파일 에러가 안 남
-    public BoardPostController(BoardPostMapper boardPostMapper,
-                               BoardAttachmentMapper boardAttachmentMapper,
-                               S3service storageService,
-                               BoardPostService boardPostService) {
-        this.boardPostMapper = boardPostMapper;
-        this.boardAttachmentMapper = boardAttachmentMapper;
-        this.storageService = storageService;
+    public BoardPostController(BoardPostService boardPostService) {
         this.boardPostService = boardPostService;
     }
 
     @GetMapping("/posts")
-    public List<BoardPost> list(
+    public ResponseEntity<?> list(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String dept,
-            @RequestParam(required = false) Long authorEmployeeNo,
+            @RequestParam(required = false) String authorId,   // ✅ Long -> String
             @RequestParam(required = false) String q,
-            @RequestParam(defaultValue = "latest") String sort
+            @RequestParam(defaultValue = "latest") String sort,
+            HttpSession session
     ) {
-        int offset = page * size;
-        return boardPostMapper.selectPosts(offset, size, category, dept, authorEmployeeNo, q, sort);
+        requireLogin(session);
+
+        return ResponseEntity.ok(
+                boardPostService.getPosts(page, size, category, dept, authorId, q, sort) // ✅ authorId String 전달
+        );
     }
 
     // ✅ 게시글 작성 + 첨부 포함 (multipart)
     @PostMapping(value = "/posts", consumes = "multipart/form-data")
-    public ResponseEntity<?> createPost(
-            @ModelAttribute BoardPost post,
+    public ResponseEntity<CreatePostRes> createPost(
+            @ModelAttribute CreatePostReq req,
             @RequestPart(name = "files", required = false) List<MultipartFile> files,
             HttpSession session
     ) {
-        Long employeeNo = (Long) session.getAttribute("employeeNo");
+        String id = requireId(session); // ✅ Long -> String
         String username = (String) session.getAttribute("username");
         String myDept = (String) session.getAttribute("dept");
 
-        if (employeeNo == null) {
-            return ResponseEntity.status(401).body("로그인 필요");
-        }
+        Long boardId = boardPostService.createPost(req, files, id, username, myDept); // ✅ id String 전달
 
-        // 1) 작성자/부서 자동 세팅
-        post.setAuthorEmployeeNo(employeeNo);
-        post.setAuthorName(username);
+        return ResponseEntity.status(201).body(new CreatePostRes("작성 완료", boardId));
+    }
 
-        if (post.getDept() == null || post.getDept().isBlank()) {
-            post.setDept(myDept);
-        }
+    // ✅ 게시글 상세
+    @GetMapping("/posts/{boardId}")
+    public ResponseEntity<?> detail(@PathVariable Long boardId, HttpSession session) {
+        requireLogin(session);
+        return ResponseEntity.ok(boardPostService.getPostDetail(boardId));
+    }
 
-        // 2) board_post INSERT (useGeneratedKeys로 boardId 채워짐)
-        boardPostMapper.insertPost(post);
+    // ✅ 게시글 수정
+    @PutMapping("/posts/{boardId}")
+    public ResponseEntity<UpdatePostRes> updatePost(
+            @PathVariable Long boardId,
+            @RequestBody UpdatePostReq req,
+            HttpSession session
+    ) {
+        String id = requireId(session); // ✅ Long -> String
+        boolean isAdmin = isAdmin(session);
 
-        // 3) 첨부 업로드 + DB 저장
-        if (files != null && !files.isEmpty()) {
-            for (MultipartFile f : files) {
-                if (f == null || f.isEmpty()) continue;
+        boardPostService.updatePost(boardId, req, id, isAdmin); // ✅ id String 전달
 
-                // ✅ S3 업로드 -> URL 리턴
-                String storedUrl = storageService.upload(post.getBoardId(), f);
-
-                BoardAttachment att = new BoardAttachment();
-                att.setBoardId(post.getBoardId());
-                att.setOriginalName(f.getOriginalFilename());
-                att.setStoredUrl(storedUrl);
-                att.setContentType(f.getContentType());
-                att.setSizeBytes(f.getSize());
-
-                boardAttachmentMapper.insertAttachment(att);
-            }
-        }
-
-        return ResponseEntity.status(201).body(
-                Map.of(
-                        "message", "작성 완료",
-                        "boardId", post.getBoardId()
-                )
-        );
+        return ResponseEntity.ok(new UpdatePostRes("수정 완료", boardId));
     }
 
     // ✅ 게시글 삭제: 작성자 or 관리자만
     @DeleteMapping("/posts/{boardId}")
-    public ResponseEntity<?> deletePost(@PathVariable Long boardId, HttpSession session) {
-        Long employeeNo = (Long) session.getAttribute("employeeNo");
+    public ResponseEntity<Void> deletePost(@PathVariable Long boardId, HttpSession session) {
+        String id = requireId(session); // ✅ Long -> String
+        boolean isAdmin = isAdmin(session);
 
-        if (employeeNo == null) {
-            return ResponseEntity.status(401).body("로그인 필요");
-        }
-
-        // 관리자 판별 (프로젝트마다 세션 키가 다를 수 있어서 2가지 케이스 지원)
-        Boolean isAdminAttr = (Boolean) session.getAttribute("isAdmin"); // true/false
-        String role = (String) session.getAttribute("role");            // "ADMIN" or "ROLE_ADMIN"
-
-        boolean isAdmin =
-                (isAdminAttr != null && isAdminAttr)
-                        || (role != null && (role.equalsIgnoreCase("ADMIN") || role.equalsIgnoreCase("ROLE_ADMIN")));
-
-        boardPostService.deletePost(boardId, employeeNo, isAdmin);
+        boardPostService.deletePost(boardId, id, isAdmin); // ✅ id String 전달
         return ResponseEntity.noContent().build(); // 204
     }
-    //게시물 상세 확인 및 삭제 
-    
-    @GetMapping("/posts/{boardId}")
-    public ResponseEntity<?> detail(@PathVariable Long boardId) {
-        BoardPost post = boardPostMapper.selectPostById(boardId);
-        if (post == null) return ResponseEntity.status(404).body("게시글 없음");
-        return ResponseEntity.ok(post);
-    }
-    
-    //게시글 수정
-    
-    @PutMapping("/posts/{boardId}")
-    public ResponseEntity<?> updatePost(
-            @PathVariable Long boardId,
-            @RequestBody BoardPost req,
-            HttpSession session
-    ) {
-        Long employeeNo = (Long) session.getAttribute("employeeNo");
-        if (employeeNo == null) return ResponseEntity.status(401).body("로그인 필요");
 
+    // ---------------------------
+    // Session Helpers
+    // ---------------------------
+    private void requireLogin(HttpSession session) {
+        if (session.getAttribute("id") == null) {
+            throw new UnauthorizedException("로그인 필요");
+        }
+    }
+
+    private String requireId(HttpSession session) { // ✅ 반환 타입 String
+        Object v = session.getAttribute("id");
+        if (v == null) throw new UnauthorizedException("로그인 필요");
+
+        // ✅ id는 문자열이라고 했으니 String으로 고정
+        if (v instanceof String) return (String) v;
+
+        // 혹시 실수로 다른 타입이 들어오면 방어
+        return String.valueOf(v);
+    }
+
+    private boolean isAdmin(HttpSession session) {
         Boolean isAdminAttr = (Boolean) session.getAttribute("isAdmin");
         String role = (String) session.getAttribute("role");
-        boolean isAdmin =
-                (isAdminAttr != null && isAdminAttr)
-                        || (role != null && (role.equalsIgnoreCase("ADMIN") || role.equalsIgnoreCase("ROLE_ADMIN")));
-
-        boardPostService.updatePost(boardId, req, employeeNo, isAdmin);
-        return ResponseEntity.ok(Map.of("message", "수정 완료", "boardId", boardId));
+        return (isAdminAttr != null && isAdminAttr)
+                || (role != null && (role.equalsIgnoreCase("ADMIN") || role.equalsIgnoreCase("ROLE_ADMIN")));
     }
 
+    @ResponseStatus(org.springframework.http.HttpStatus.UNAUTHORIZED)
+    private static class UnauthorizedException extends RuntimeException {
+        public UnauthorizedException(String message) {
+            super(message);
+        }
+    }
 }

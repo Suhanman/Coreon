@@ -27,20 +27,29 @@
         (#{boardId}, #{originalName}, #{storedUrl}, #{contentType}, #{sizeBytes})
     </insert>
 
-    <!-- 2) list by board -->
-    <select id="selectByBoardId" resultType="com.coreon.board.domain.BoardAttachment">
-        SELECT <include refid="AttachmentColumns"/>
-        FROM board_attachment
-        WHERE board_id = #{boardId}
-        ORDER BY attachment_id DESC
-    </select>
+<resultMap id="AttachmentMap" type="com.coreon.board.domain.BoardAttachment">
+  <id property="attachmentId" column="attachment_id"/>
+  <result property="boardId" column="board_id"/>
+  <result property="originalName" column="original_name"/>
+  <result property="storedUrl" column="stored_url"/>
+  <result property="contentType" column="content_type"/>
+  <result property="sizeBytes" column="size_bytes"/>
+  <result property="createdAt" column="created_at"/>
+</resultMap>
 
-    <!-- 3) select by attachmentId -->
-    <select id="selectById" resultType="com.coreon.board.domain.BoardAttachment">
-        SELECT <include refid="AttachmentColumns"/>
-        FROM board_attachment
-        WHERE attachment_id = #{attachmentId}
-    </select>
+<select id="selectByBoardId" resultMap="AttachmentMap">
+  SELECT <include refid="AttachmentColumns"/>
+  FROM board_attachment
+  WHERE board_id = #{boardId}
+  ORDER BY attachment_id DESC
+</select>
+
+<select id="selectById" resultMap="AttachmentMap">
+  SELECT <include refid="AttachmentColumns"/>
+  FROM board_attachment
+  WHERE attachment_id = #{attachmentId}
+</select>
+
 
     <!-- 4) delete -->
     <delete id="deleteById">

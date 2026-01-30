@@ -8,8 +8,8 @@ public class BoardPost {
     private String title;
     private String content;
     private String dept;
-    private Long author_employee_no;
-    private String author_name;
+    private String authorid;
+    private String authorname;
     private Long view_count;
     private LocalDateTime created_at;
     private LocalDateTime updated_at;
@@ -29,13 +29,23 @@ public class BoardPost {
     public String getDept() { return dept; }
     public void setDept(String dept) { this.dept = dept; }
 
-    public Long getAuthorEmployeeNo() { return author_employee_no; }
-    public void setAuthorEmployeeNo(Long author_employee_no) { this.author_employee_no = author_employee_no; }
+  
 
-    public String getAuthorName() { return author_name; }
-    public void setAuthorName(String author_name) { this.author_name = author_name; }
 
-    public Long getViewCount() { return view_count; }
+
+    public String getAuthorid() {
+		return authorid;
+	}
+	public void setAuthorid(String authorid) {
+		this.authorid = authorid;
+	}
+	public String getAuthorname() {
+		return authorname;
+	}
+	public void setAuthorname(String authorname) {
+		this.authorname = authorname;
+	}
+	public Long getViewCount() { return view_count; }
     public void setViewCount(Long view_count) { this.view_count = view_count; }
 
     public LocalDateTime getCreatedAt() { return created_at; }

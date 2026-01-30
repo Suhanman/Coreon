@@ -9,9 +9,12 @@ public class PostDetailRes {
     private String title;
     private String content;
     private String dept;
-    private Integer authorEmployeeNo;
-    private String authorName;
-    private int viewCount;
+
+    // ✅ 작성자 id는 문자열
+    private String authorId;
+
+    private String authorname;
+    private Long viewCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -57,27 +60,28 @@ public class PostDetailRes {
         this.dept = dept;
     }
 
-    public Integer getAuthorEmployeeNo() {
-        return authorEmployeeNo;
+    // ✅ authorId getter/setter
+    public String getAuthorId() {
+        return authorId;
     }
 
-    public void setAuthorEmployeeNo(Integer authorEmployeeNo) {
-        this.authorEmployeeNo = authorEmployeeNo;
+    public void setAuthorId(String authorId) {
+        this.authorId = authorId;
     }
 
     public String getAuthorName() {
-        return authorName;
+        return authorname;
     }
 
-    public void setAuthorName(String authorName) {
-        this.authorName = authorName;
+    public void setAuthorName(String authorname) {
+        this.authorname = authorname;
     }
 
-    public int getViewCount() {
+    public Long getViewCount() {
         return viewCount;
     }
 
-    public void setViewCount(int viewCount) {
+    public void setViewCount(Long viewCount) {
         this.viewCount = viewCount;
     }
 

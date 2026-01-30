@@ -3,43 +3,20 @@ package com.coreon.board.dto.response;
 import java.util.List;
 
 public class PageRes<T> {
-
+    private List<T> content;
     private int page;
     private int size;
-    private long total;
-    private List<T> items;
+    private long totalElements;
 
-    public PageRes() {}
-
-    public int getPage() {
-        return page;
-    }
-
-    public void setPage(int page) {
+    public PageRes(List<T> content, int page, int size, long totalElements) {
+        this.content = content;
         this.page = page;
-    }
-
-    public int getSize() {
-        return size;
-    }
-
-    public void setSize(int size) {
         this.size = size;
+        this.totalElements = totalElements;
     }
 
-    public long getTotal() {
-        return total;
-    }
-
-    public void setTotal(long total) {
-        this.total = total;
-    }
-
-    public List<T> getItems() {
-        return items;
-    }
-
-    public void setItems(List<T> items) {
-        this.items = items;
-    }
+    public List<T> getContent() { return content; }
+    public int getPage() { return page; }
+    public int getSize() { return size; }
+    public long getTotalElements() { return totalElements; }
 }

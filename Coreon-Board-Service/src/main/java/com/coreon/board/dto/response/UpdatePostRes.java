@@ -1,10 +1,10 @@
 package com.coreon.board.dto.response;
 
-public class CreatePostRes {
+public class UpdatePostRes {
     private String message;
     private Long boardId;
 
-    public CreatePostRes(String message, Long boardId) {
+    public UpdatePostRes(String message, Long boardId) {
         this.message = message;
         this.boardId = boardId;
     }
