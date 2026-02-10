@@ -1,0 +1,127 @@
+name: MSA Integrated Deploy
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  # [JOB 1] 변경 감지 단계 (기존 유지)
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.filter.outputs.changes }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            auth-service:
+              - 'auth-service/**'
+              - 'common-**/**'
+              - 'pom.xml'
+            user-service:
+              - 'user-service/**'
+              - 'common-**/**'
+              - 'pom.xml'
+            notification-service:
+              - 'notification-service/**'
+              - 'common-**/**'
+              - 'pom.xml'
+            recommend-service:
+              - 'recommend-service/**'
+              - 'common-**/**'
+              - 'pom.xml' 
+            system-service:
+              - 'system-service/**'
+              - 'common-**/**'
+              - 'pom.xml'     
+            stats-service:
+              - 'stats-service/**'
+              - 'common-**/**'
+              - 'pom.xml' 
+            study-service:
+              - 'study-service/**'
+              - 'common-**/**'
+              - 'pom.xml' 
+
+  # [JOB 2] 동적 배포 단계
+  build-and-deploy:
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.matrix != '[]' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service: ${{ fromJSON(needs.detect-changes.outputs.matrix) }}
+
+    steps:
+      # 1. 소스 체크아웃
+      - uses: actions/checkout@v3
+
+      # 2. JDK 세팅
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      # 3. Maven 빌드
+      - name: Build with Maven
+        run: mvn clean package -pl ${{ matrix.service }} -am -DskipTests
+
+      # 4. Docker Hub 로그인
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # 5. 도커 빌드 & 푸시
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/${{ matrix.service }}:${{ github.sha }}
+          build-args: |
+            SERVICE_NAME=${{ matrix.service }}
+
+      # 6. Manifest Repo 업데이트 (▼▼▼ 여기가 변경되었습니다 ▼▼▼)
+      - name: Update Manifest
+        env:
+          GIT_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
+          SERVICE: ${{ matrix.service }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          # 1. Manifest Repo 클론
+          git clone https://x-access-token:${GIT_TOKEN}@github.com/studylinker/manifest.git manifest-repo
+          
+          # 2. 루트 디렉토리 이동 (구조가 바뀌었으므로 특정 앱 폴더로 이동하지 않습니다)
+          cd manifest-repo
+          
+          echo "Updating manifest for ${SERVICE} to tag ${IMAGE_TAG}..."
+          
+          # 3. yq를 사용하여 charts/root-app/values.yaml 수정
+          # 해석: microservices 리스트 중 name이 현재 SERVICE와 같은 항목을 찾아 tag를 교체한다.
+          yq -i "(.microservices[] | select(.name == \"${SERVICE}\")).tag = \"${IMAGE_TAG}\"" charts/root-app/values.yaml
+          
+          # (디버깅용) 변경 내용 확인
+          cat charts/root-app/values.yaml | grep ${SERVICE} -A 5
+          
+          # 4. Git 설정 및 푸시
+          git config user.name "CI Bot"
+          git config user.email "ci@bot.com"
+          
+          if [[ -n $(git status -s) ]]; then
+            git add charts/root-app/values.yaml
+            git commit -m "Update ${SERVICE} image to ${IMAGE_TAG}"
+            
+            # [중요] Matrix로 인해 여러 job이 동시에 push할 수 있으므로 rebase 적용
+            git pull --rebase origin main
+            git push origin main
+          else
+            echo "No changes to commit for ${SERVICE}"
+          fi
