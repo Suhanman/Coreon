@@ -1,0 +1,33 @@
+# --- Build outputs ---
+target
+build
+out
+
+# --- Git / CI metadata ---
+.git
+.github
+
+# --- IDE files ---
+.idea
+.vscode
+*.iml
+.settings
+.classpath
+.project
+.factorypath
+
+# --- OS files ---
+.DS_Store
+Thumbs.db
+
+# --- Logs / temp ---
+*.log
+tmp
+temp
+
+# --- Node (있을 경우) ---
+node_modules
+dist
+
+
+# ci test
