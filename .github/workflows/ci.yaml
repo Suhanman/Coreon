@@ -3,6 +3,7 @@ name: CI - Build & Push to ECR
 on:
   push:
     branches: ["main"]
+  workflow_dispatch:
 
 jobs:
   detect-changes:
@@ -31,6 +32,7 @@ jobs:
     needs: detect-changes
     if: ${{ needs.detect-changes.outputs.matrix != '[]' }}
     runs-on: ubuntu-latest
+
     strategy:
       fail-fast: false
       matrix:
@@ -39,12 +41,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set ECR repo name (matches Terraform)
+        shell: bash
+        run: |
+          case "${{ matrix.service }}" in
+            "Coreon-Board-Service")  repo="coreon-board" ;;
+            "Coreon-FAQ-Service")    repo="coreon-faq" ;;
+            "Coreon_AuthService")    repo="coreon-auth" ;;
+            "Coreon_MemberService")  repo="coreon-member" ;;
+            "Coreon_NoticeService")  repo="coreon-notice" ;;
+            *)
+              echo "Unknown service folder: ${{ matrix.service }}"
+              exit 1
+              ;;
+          esac
+
+          echo "ECR_REPO=$repo" >> "$GITHUB_ENV"
+          echo "ECR_REPO=$repo"
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
+
+  
 
       - name: Login to Amazon ECR
         id: ecr-login
@@ -60,5 +82,5 @@ jobs:
           file: ./${{ matrix.service }}/Dockerfile
           push: true
           tags: |
-            ${{ env.ECR_REGISTRY }}/${{ matrix.service }}:${{ env.IMAGE_TAG }}
-
+            ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }}
+            ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:latest
